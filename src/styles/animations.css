@@ -1,0 +1,107 @@
+/* ================================================
+   REVEAL AO SCROLL
+   Elementos começam invisíveis e transladados
+   para baixo. Quando o JS adiciona .reveal--active
+   (via IntersectionObserver), eles animam para
+   a posição e opacidade normais.
+   ================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity var(--transition-slow),
+    transform var(--transition-slow);
+}
+
+.reveal--active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ================================================
+   STAGGER — animação escalonada para grids de cards
+   Cada filho direto anima um pouco depois do anterior,
+   criando um efeito cascata.
+   Uso: adicione .reveal--stagger no container e
+        .reveal em cada filho.
+   ================================================ */
+.reveal--stagger > *:nth-child(1) { transition-delay: 0.05s; }
+.reveal--stagger > *:nth-child(2) { transition-delay: 0.15s; }
+.reveal--stagger > *:nth-child(3) { transition-delay: 0.25s; }
+.reveal--stagger > *:nth-child(4) { transition-delay: 0.35s; }
+.reveal--stagger > *:nth-child(5) { transition-delay: 0.45s; }
+
+/* ================================================
+   FADE SIMPLES (sem deslocamento vertical)
+   Para elementos que já estão na posição certa
+   e só precisam aparecer suavemente.
+   ================================================ */
+.fade-in {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.fade-in.reveal--active {
+  opacity: 1;
+}
+
+/* ================================================
+   PULSE — anel que expande e desaparece
+   Usado no botão do WhatsApp para chamar atenção.
+   ================================================ */
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); }
+  70%  { box-shadow: 0 0 0 18px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+.pulse {
+  animation: pulse-ring 2.5s infinite;
+}
+
+/* ================================================
+   FLOAT — levitação suave
+   Para elementos decorativos que "flutuam".
+   ================================================ */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ================================================
+   SLIDE-IN DO MENU MOBILE
+   ================================================ */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(100%); opacity: 0; }
+}
+
+/* ================================================
+   ACESSIBILIDADE — respeita preferência do sistema
+   Usuários com "reduzir movimento" ativado no SO
+   não verão nenhuma animação.
+   ================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal,
+  .fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

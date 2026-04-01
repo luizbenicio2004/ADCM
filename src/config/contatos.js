@@ -1,0 +1,1 @@
+export {CONTATOS} from '../data/igreja.js';

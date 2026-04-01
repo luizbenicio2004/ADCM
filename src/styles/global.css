@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ================================================
+   VARIÁVEIS DE DESIGN (tokens)
+   Prefixo -- indica CSS Custom Property.
+   Centralizar aqui é a melhor prática:
+   para mudar a cor primária do site inteiro,
+   você edita só esta linha.
+   ================================================ */
+:root {
+  /* --- Cores principais --- */
+  --primary: #1e3a8a;         /* Azul escuro — identidade */
+  --primary-light: #3b82f6;   /* Azul médio — hovers e destaques */
+  --secondary: #dc2626;       /* Vermelho — botões de ação (CTA) */
+  --secondary-hover: #b91c1c; /* Vermelho escuro — hover do botão */
+  --accent: #fbbf24;          /* Dourado — destaques no hero */
+
+  /* --- Fundos --- */
+  --bg: #ffffff;
+  --bg-alt: #f9fafb;    /* Cinza bem clarinho — seções alternadas */
+  --bg-dark: #0d1b4b;   /* Azul muito escuro — footer */
+
+  /* --- Textos --- */
+  --text: #1a1a1a;
+  --text-muted: #6b7280;  /* Subtítulos, descrições */
+  --text-light: #9ca3af;  /* Textos terciários */
+  --text-white: #ffffff;
+  --text-white-muted: rgba(255, 255, 255, 0.75);
+
+  /* --- Bordas --- */
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+
+  /* --- Tipografia --- */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
+  /* --- Escala de tamanhos de fonte ---
+     clamp() nos componentes vai usar estes valores como referência */
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg:   1.125rem;   /* 18px */
+  --text-xl:   1.25rem;    /* 20px */
+  --text-2xl:  1.5rem;     /* 24px */
+  --text-3xl:  1.875rem;   /* 30px */
+  --text-4xl:  2.25rem;    /* 36px */
+
+  /* --- Espaçamentos (múltiplos de 8px — padrão de mercado) --- */
+  --space-1:  0.25rem;   /* 4px  */
+  --space-2:  0.5rem;    /* 8px  */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+
+  /* --- Border radius --- */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-full: 9999px; /* Para pílulas e círculos */
+
+  /* --- Sombras --- */
+  --shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md:    0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg:    0 16px 40px rgba(30, 58, 138, 0.12);
+  --shadow-hover: 0 20px 48px rgba(30, 58, 138, 0.2);
+
+  /* --- Transições --- */
+  --transition:      0.3s ease;
+  --transition-slow: 0.7s ease;
+
+  /* --- Larguras máximas de container --- */
+  --max-width:    1100px;
+  --max-width-sm: 860px;
+}
+
+/* ================================================
+   BASE GLOBAL
+   ================================================ */
+html {
+  scroll-behavior: smooth;
+  /* Garante que o header fixo não sobreponha
+     o destino do link âncora (#cultos, etc.) */
+  scroll-padding-top: 72px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  /* Melhora renderização de fontes no Chrome/Mac */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Botões herdam a fonte do body
+   (navegadores não fazem isso por padrão) */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* ================================================
+   UTILITÁRIOS GLOBAIS
+   Classes reutilizáveis em qualquer componente
+   ================================================ */
+
+/* Container centralizado com padding lateral */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+}
+
+.container--sm {
+  max-width: var(--max-width-sm);
+}
+
+/* Cabeçalho de seção padronizado */
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+/* Linha decorativa azul acima dos títulos */
+.section-divider {
+  width: 50px;
+  height: 4px;
+  background: var(--primary);
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-4);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  /* clamp(mínimo, fluido, máximo) — tamanho que cresce com a tela */
+  font-size: clamp(var(--text-2xl), 3vw, var(--text-4xl));
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: var(--space-3);
+  line-height: 1.2;
+}
+
+/* Variante clara: títulos em seções escuras */
+.section-title--light {
+  color: var(--text-white);
+}
+
+.section-subtitle {
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  max-width: 520px;
+  margin-inline: auto;
+  line-height: 1.7;
+}
+
+.section-subtitle--light {
+  color: var(--text-white-muted);
+}
+
+/* Padding vertical padrão de todas as seções */
+.section {
+  padding-block: var(--space-20);
+}
+
+.section--alt {
+  background: var(--bg-alt);
+}

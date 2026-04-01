@@ -1,0 +1,14 @@
+.cta {
+  background: var(--primary);
+  color: #fff;
+  text-align: center;
+}
+
+.cta p {
+  margin: 10px 0 20px;
+}
+
+.cta .btn {
+  background: #fff;
+  color: var(--primary);
+}
