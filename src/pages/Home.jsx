@@ -9,6 +9,8 @@ import Localizacao from "../components/Localizacao/Localizacao";
 import Footer     from "../components/Footer/Footer";
 import WhatsAppButton from "../components/WhatsApp/WhatsAppButton";
 import BackToTop  from "../components/BackToTop/BackToTop";
+import Reciclagem from "../components/Reciclagem/Reciclagem";
+import Live from "../components/Live/Live";
 
 export default function Home() {
   return (
@@ -16,9 +18,11 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
+        <Live />
         <Sobre />
         <Cultos />
         <Ministerios />
+        <Reciclagem />
         <Avisos />
         <Teologia />
         <Localizacao />

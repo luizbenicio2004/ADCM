@@ -1,8 +1,26 @@
+// src/components/Footer/Footer.jsx
 import { FaInstagram, FaFacebook, FaWhatsapp, FaYoutube } from "react-icons/fa";
-import { CONTATOS, ENDERECO, CULTOS } from "../../data/igreja";
+import { CULTOS } from "../../data/igreja";
+import { useConfig } from "../../context/ConfigContext";
+import { useCollection } from "../../hooks/useCollection";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
+  const { loading, config } = useConfig();
+  const { data: cultosFirestore } = useCollection("cultos");
   const ano = new Date().getFullYear();
+
+  const cultos = cultosFirestore?.length > 0 ? cultosFirestore : CULTOS;
+  const cultosOrdenados = [...cultos].sort((a, b) => {
+    const ordem = { domingo: 0, segunda: 1, "segunda-feira": 1, terça: 2, "terça-feira": 2, quarta: 3, "quarta-feira": 3, quinta: 4, "quinta-feira": 4, sexta: 5, "sexta-feira": 5, sábado: 6 };
+    const norm = (s = "") => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return (ordem[norm(a.dia)] ?? 99) - (ordem[norm(b.dia)] ?? 99);
+  });
+
+  const instagram = config?.instagram;
+  const facebook  = config?.facebook;
+  const youtube   = config?.youtube;
+  const whatsapp  = config?.whatsapp;
 
   return (
     <footer className="bg-gray-950 text-gray-400">
@@ -23,7 +41,9 @@ export default function Footer() {
                   className="w-12 h-12 object-contain rounded-full bg-white p-[3px]"
                 />
                 <div>
-                  <span className="block text-white font-bold text-lg leading-tight">ADCM Poá</span>
+                  <span className="block text-white font-bold text-lg leading-tight">
+                    {loading ? "Carregando..." : config?.nome || "ADCM Poá"}
+                  </span>
                   <span className="text-xs uppercase tracking-widest text-gray-400">Assembleia de Deus</span>
                 </div>
               </div>
@@ -32,8 +52,8 @@ export default function Footer() {
                 comunhão e amor ao próximo. Venha fazer parte desta família.
               </p>
               <div className="flex flex-col gap-2">
-                {CONTATOS.instagram && (
-                  <a href={CONTATOS.instagram} target="_blank" rel="noopener noreferrer"
+                {instagram && (
+                  <a href={instagram} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 hover:text-white transition">
                     <span className="w-7 h-7 flex items-center justify-center rounded bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white">
                       <FaInstagram size={14} />
@@ -41,8 +61,8 @@ export default function Footer() {
                     Instagram
                   </a>
                 )}
-                {CONTATOS.facebook && (
-                  <a href={CONTATOS.facebook} target="_blank" rel="noopener noreferrer"
+                {facebook && (
+                  <a href={facebook} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 hover:text-white transition">
                     <span className="w-7 h-7 flex items-center justify-center rounded bg-blue-600 text-white">
                       <FaFacebook size={14} />
@@ -50,8 +70,8 @@ export default function Footer() {
                     Facebook
                   </a>
                 )}
-                {CONTATOS.youtube && (
-                  <a href={CONTATOS.youtube} target="_blank" rel="noopener noreferrer"
+                {youtube && (
+                  <a href={youtube} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 hover:text-white transition">
                     <span className="w-7 h-7 flex items-center justify-center rounded bg-red-600 text-white">
                       <FaYoutube size={14} />
@@ -59,8 +79,8 @@ export default function Footer() {
                     YouTube
                   </a>
                 )}
-                {CONTATOS.whatsapp && (
-                  <a href={`https://wa.me/${CONTATOS.whatsapp}`} target="_blank" rel="noopener noreferrer"
+                {whatsapp && (
+                  <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 hover:text-white transition">
                     <span className="w-7 h-7 flex items-center justify-center rounded bg-green-500 text-white">
                       <FaWhatsapp size={14} />
@@ -90,8 +110,8 @@ export default function Footer() {
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Cultos</h3>
               <ul className="flex flex-col gap-2">
-                {CULTOS.map((culto) => (
-                  <li key={culto.id} className="flex justify-between border-b border-white/10 pb-2 text-sm">
+                {cultosOrdenados.map((culto) => (
+                  <li key={culto.id ?? culto.nome} className="flex justify-between border-b border-white/10 pb-2 text-sm">
                     <span>{culto.dia}{culto.obs ? " *" : ""}</span>
                     <span className="font-bold text-blue-400">{culto.horario}</span>
                   </li>
@@ -103,12 +123,18 @@ export default function Footer() {
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Endereço</h3>
               <address className="text-sm not-italic leading-relaxed mb-4">
-                {ENDERECO.rua}<br />
-                {ENDERECO.bairro} — {ENDERECO.cidade}, {ENDERECO.estado}<br />
-                CEP: {ENDERECO.cep}
+                {config?.endereco?.rua ? (
+                  <>
+                    {config.endereco.rua}{config.endereco.bairro ? `, ${config.endereco.bairro}` : ""} <br />
+                    {config.endereco.cidade} - {config.endereco.estado} <br />
+                    {config.endereco.cep && <>CEP: {config.endereco.cep}</>}
+                  </>
+                ) : (
+                  "Endereço não informado"
+                )}
               </address>
-              {CONTATOS.whatsapp && (
-                <a href={`https://wa.me/${CONTATOS.whatsapp}`} target="_blank" rel="noopener noreferrer"
+              {whatsapp && (
+                <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 text-green-400 font-bold hover:text-green-300 transition">
                   <FaWhatsapp size={16} />
                   Fale pelo WhatsApp
@@ -120,10 +146,18 @@ export default function Footer() {
         </div>
       </div>
 
+      {/* ✅ Rodapé inferior com link para o painel admin */}
       <div className="py-6">
         <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 text-center md:text-left">
-          <p>{ano} ADCM Poá · Todos os direitos reservados</p>
+          <p>{ano} {config?.nome || "ADCM Poá"} · Todos os direitos reservados</p>
           <p className="italic">O Senhor é o meu pastor e nada me faltará. — Salmos 23:1</p>
+          <Link
+            to="/admin/login"
+            className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors duration-300 text-xs border border-gray-700 hover:border-gray-400 px-3 py-1 rounded"
+            title="Área do administrador"
+          >
+            ⚙️ Painel Admin
+          </Link>
         </div>
       </div>
 
