@@ -1,10 +1,20 @@
 // src/components/Reciclagem/Reciclagem.jsx
 import { useDoc } from "../../hooks/useDoc";
-import { useReveal } from "../../hooks/useReveal";
 import { Recycle, Target } from "lucide-react";
 
+// Fallback estático para quando o documento config/reciclagem não existir no Firestore
+const RECICLAGEM_FALLBACK = {
+  descricao: "Contribua com o meio ambiente e com o crescimento da nossa igreja. Trazendo materiais recicláveis, você ajuda a custear o terreno para nossa nova sede.",
+  materiais: ["Papel e papelão", "Plástico", "Metal e latas", "Vidro", "Eletrônicos"],
+  metaReais: 0,
+  arrecadadoReais: 0,
+  versiculo: "A terra é do Senhor e tudo o que nela existe.",
+  referenciaVersiculo: "Salmos 24:1",
+};
+
 export default function Reciclagem() {
-  const [ref, visible] = useReveal();
+  // ✅ Removido useReveal da <section> — evita o bug de opacity-0 no container inteiro
+  // quando dados assíncronos chegam depois do IntersectionObserver já ter rodado.
   const { data, loading } = useDoc("config", "reciclagem");
 
   if (loading) return (
@@ -23,19 +33,12 @@ export default function Reciclagem() {
     </section>
   );
 
-  if (!data) return null;
-
-  const { descricao, materiais = [], metaReais = 0, arrecadadoReais = 0, versiculo, referenciaVersiculo } = data;
+  const conteudo = data ?? RECICLAGEM_FALLBACK;
+  const { descricao, materiais = [], metaReais = 0, arrecadadoReais = 0, versiculo, referenciaVersiculo } = conteudo;
   const porcentagem = metaReais > 0 ? Math.min(100, Math.round((arrecadadoReais / metaReais) * 100)) : 0;
 
   return (
-    <section
-      id="reciclagem"
-      ref={ref}
-      className={`py-20 px-6 bg-green-50 transition-all duration-700 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-      }`}
-    >
+    <section id="reciclagem" className="py-20 px-6 bg-green-50">
       <div className="max-w-[1000px] mx-auto">
         <div className="text-center max-w-[600px] mx-auto mb-12">
           <div className="w-12 h-[2px] bg-green-700 mx-auto mb-4" />

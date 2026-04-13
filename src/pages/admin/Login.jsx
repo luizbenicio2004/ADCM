@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../services/firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import OptimizedImage from "../../components/OptimizedImage";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -28,7 +30,7 @@ export default function Login() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-sm">
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="Logo" className="w-16 h-16 mx-auto rounded-full mb-3" />
+          <OptimizedImage src="/logo.webp" alt="Logo" className="w-16 h-16 mx-auto rounded-full mb-3" />
           <h1 className="text-xl font-bold text-gray-900">Painel Admin</h1>
           <p className="text-sm text-gray-500">ADCM Poá</p>
         </div>
@@ -67,6 +69,16 @@ export default function Login() {
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-900 transition-colors"
+          >
+            <ArrowLeft size={14} />
+            Ir para o site
+          </Link>
+        </div>
       </div>
     </div>
   );

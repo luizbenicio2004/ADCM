@@ -3,8 +3,9 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import { useConfig } from "../../context/ConfigContext";
 import { useStorage } from "../../hooks/useStorage";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Plus, Trash2, BookOpen, ImagePlus, Loader2, X } from "lucide-react";
+import AdminLayout from "../../components/admin/AdminLayout";
+import { Save, Plus, Trash2, BookOpen, ImagePlus, Loader2, X } from "lucide-react";
+import OptimizedImage from "../../components/OptimizedImage";
 
 const FORM_VAZIO = {
   historia: "", versiculo: "", referenciaVersiculo: "", missao: "", visao: "",
@@ -15,8 +16,7 @@ const FORM_VAZIO = {
     { valor: "3", label: "Cultos por Semana" },
   ],
   pastores: [],
-  fotosHistoricas: [],
-};
+  fotosHistoricas: [] };
 
 function Card({ title, icon, children }) {
   return (
@@ -31,7 +31,6 @@ function Card({ title, icon, children }) {
 }
 
 export default function AdminSobre() {
-  const navigate = useNavigate();
   const { config, loading } = useConfig();
   const { upload, remove: removeFile, progress, uploading } = useStorage();
 
@@ -123,18 +122,8 @@ export default function AdminSobre() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin/dashboard")} className="text-gray-500 hover:text-gray-900 transition">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="font-bold text-gray-900">Seção Sobre</h1>
-          <p className="text-xs text-gray-500">História, missão, visão, pastores e galeria</p>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-6 py-10">
+    <AdminLayout title="Seção Sobre" subtitle="História, missão, visão, pastores e galeria">
+      <div className="max-w-2xl ">
         {loading ? (
           <div className="flex flex-col gap-4">{Array(4).fill(0).map((_, i) => <div key={i} className="h-10 bg-gray-200 rounded-lg animate-pulse" />)}</div>
         ) : (
@@ -205,7 +194,7 @@ export default function AdminSobre() {
                     <div className="flex flex-col items-center gap-2 flex-shrink-0">
                       {pastor.fotoUrl ? (
                         <div className="relative w-16 h-16 rounded-full overflow-hidden border border-gray-200">
-                          <img src={pastor.fotoUrl} alt={pastor.nome} className="w-full h-full object-cover" />
+                          <OptimizedImage src={pastor.fotoUrl} alt={pastor.nome} className="w-full h-full object-cover" />
                           <button type="button" onClick={() => handlePastor(i, "fotoUrl", "")}
                             className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition">
                             <X size={14} className="text-white" />
@@ -257,7 +246,7 @@ export default function AdminSobre() {
                   <div className="grid grid-cols-3 gap-2">
                     {form.fotosHistoricas.map((url) => (
                       <div key={url} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
-                        <img src={url} alt="" className="w-full h-full object-cover" />
+                        <OptimizedImage src={url} alt="" className="w-full h-full object-cover" />
                         <button type="button" onClick={() => removeFotoHistorica(url)}
                           className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 hover:bg-black transition">
                           <X size={12} />
@@ -280,7 +269,7 @@ export default function AdminSobre() {
             </button>
           </form>
         )}
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

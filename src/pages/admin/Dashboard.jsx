@@ -1,7 +1,9 @@
 import { signOut } from "firebase/auth";
 import { auth } from "../../services/firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { Home } from "lucide-react";
+import OptimizedImage from "../../components/OptimizedImage";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -29,18 +31,27 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-full" />
+          <OptimizedImage src="/logo.webp" alt="Logo" className="w-10 h-10 rounded-full" />
           <div>
             <h1 className="font-bold text-gray-900 text-sm">Painel Admin — ADCM Poá</h1>
             <p className="text-xs text-gray-500">{user?.email}</p>
           </div>
         </div>
-        <button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Sair</button>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-sm text-blue-900 border border-blue-900/30 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors font-medium"
+          >
+            <Home size={15} />
+            Ver site
+          </Link>
+          <button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Sair</button>
+        </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-10">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Bem-vindo!</h2>
-        <p className="text-gray-500 mb-8">O que você quer gerenciar hoje?</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Olá, {user?.email?.split("@")[0]}! 👋</h2>
+        <p className="text-gray-500 mb-8">O que deseja atualizar no site hoje?</p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {itens.map((item) => (

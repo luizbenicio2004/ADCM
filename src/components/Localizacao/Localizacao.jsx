@@ -1,35 +1,46 @@
+import { useState, useEffect } from "react";
 import { MapPin, Clock } from "lucide-react";
-import { useReveal } from "../../hooks/useReveal";
 import { useConfig } from "../../context/ConfigContext";
 import { useCollection } from "../../hooks/useCollection";
+import { sortCultos } from "../../utils/sortCultos";
 
 export default function Localizacao() {
-  const [ref, visible] = useReveal();
-  const [refMapa, mapaVisivel] = useReveal();
+  // ✅ CORRIGIDO: o mapa não usa mais IntersectionObserver para controlar
+  // o carregamento do iframe. Em vez disso, espera os dados do Firebase
+  // chegarem (endereco.embedUrl disponível) antes de renderizar o iframe.
+  // Isso elimina o bug onde mapaVisivel=true mas embedUrl ainda era undefined.
   const { config, loading: loadingConfig } = useConfig();
-  const { data: cultos, loading: loadingCultos } = useCollection("cultos");
+  const { data: cultos = [], loading: loadingCultos } = useCollection("cultos");
 
   const endereco = config?.endereco ?? {};
   const loading = loadingConfig || loadingCultos;
+  const cultosOrdenados = sortCultos(cultos);
+
+  // O mapa só renderiza após os dados chegarem
+  const [mostrarMapa, setMostrarMapa] = useState(false);
+  useEffect(() => {
+    if (!loadingConfig && endereco.embedUrl) {
+      // Pequeno delay para garantir que o layout já está estável
+      const t = setTimeout(() => setMostrarMapa(true), 100);
+      return () => clearTimeout(t);
+    }
+  }, [loadingConfig, endereco.embedUrl]);
 
   return (
-    <section
-      id="localizacao"
-      ref={ref}
-      className={`py-20 px-6 bg-gray-50 transition-all duration-700 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-      }`}
-    >
+    <section id="localizacao" className="py-20 px-6 bg-gray-50">
       <div className="max-w-[1100px] mx-auto">
 
         <div className="text-center max-w-[600px] mx-auto mb-12">
           <div className="w-12 h-[2px] bg-blue-900 mx-auto mb-4" />
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Como Chegar</h2>
-          <p className="text-gray-600">Será uma alegria receber você e sua família. Venha nos visitar!</p>
+          <p className="text-gray-600">
+            A porta está aberta. Você não precisa de convite — só apareça.
+          </p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-[1fr_1.4fr] items-start">
 
+          {/* COLUNA ESQUERDA */}
           <div className="flex flex-col gap-4">
             <div className="flex gap-4 p-6 rounded-xl border border-gray-200 bg-white hover:shadow-md transition-all">
               <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-900/10 border border-blue-900/20 text-blue-900 flex-shrink-0">
@@ -45,9 +56,9 @@ export default function Localizacao() {
                   </div>
                 ) : (
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {endereco.rua}<br />
-                    {endereco.bairro} — {endereco.cidade}, {endereco.estado}<br />
-                    CEP: {endereco.cep}
+                    {endereco.rua || "Endereço não informado"}
+                    {endereco.bairro && <><br />{endereco.bairro} — {endereco.cidade}, {endereco.estado}</>}
+                    {endereco.cep && <><br />CEP: {endereco.cep}</>}
                   </p>
                 )}
               </div>
@@ -70,11 +81,11 @@ export default function Localizacao() {
                   </div>
                 ) : (
                   <ul className="flex flex-col gap-2">
-                    {cultos.map((culto, i) => (
+                    {cultosOrdenados.map((culto, i) => (
                       <li
                         key={culto.id}
                         className={`flex justify-between pb-2 text-sm ${
-                          i < cultos.length - 1 ? "border-b border-gray-200" : ""
+                          i < cultosOrdenados.length - 1 ? "border-b border-gray-200" : ""
                         }`}
                       >
                         <span className="text-gray-600">{culto.dia}{culto.obs ? " *" : ""}</span>
@@ -87,7 +98,7 @@ export default function Localizacao() {
             </div>
 
             {endereco.mapsUrl && (
-              <a  
+              <a
                 href={endereco.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -101,11 +112,9 @@ export default function Localizacao() {
             )}
           </div>
 
-          <div
-            ref={refMapa}
-            className="rounded-xl overflow-hidden border border-gray-200 shadow-md h-[420px] bg-gray-100"
-          >
-            {mapaVisivel && endereco.embedUrl ? (
+          {/* COLUNA DIREITA — mapa */}
+          <div className="rounded-xl overflow-hidden border border-gray-200 shadow-md h-[420px] bg-gray-100">
+            {mostrarMapa ? (
               <iframe
                 title="Localização da Igreja ADCM Poá"
                 src={endereco.embedUrl}
@@ -115,7 +124,7 @@ export default function Localizacao() {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                Carregando mapa…
+                {loadingConfig ? "Carregando mapa..." : "Endereço ainda não configurado."}
               </div>
             )}
           </div>

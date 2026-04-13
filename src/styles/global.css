@@ -199,3 +199,26 @@ button {
 .section--alt {
   background: var(--bg-alt);
 }
+/* ================================================
+   SELEÇÃO DE TEXTO — identidade visual
+   ================================================ */
+::selection {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+/* ================================================
+   FOCO VISÍVEL — acessibilidade
+   ================================================ */
+:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ================================================
+   LINKS DE ÂNCORA — não sobrepor com header fixo
+   ================================================ */
+[id] {
+  scroll-margin-top: 80px;
+}

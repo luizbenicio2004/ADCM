@@ -3,9 +3,13 @@ import { useState, useEffect } from "react";
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
 import { db } from "../services/firebase";
 
+// Cache em memória por sessão — evita re-fetches desnecessários durante a navegação
+const sessionCache = new Map();
+
 export function useCollection(collectionName) {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const cached = sessionCache.get(collectionName);
+  const [data, setData] = useState(cached ?? []);
+  const [loading, setLoading] = useState(!cached);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -17,6 +21,7 @@ export function useCollection(collectionName) {
         const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setData(docs);
         setLoading(false);
+        sessionCache.set(collectionName, docs);
       },
       (err) => {
         console.error("Erro ao buscar coleção:", err);
@@ -28,7 +33,6 @@ export function useCollection(collectionName) {
     return () => unsubscribe();
   }, [collectionName]);
 
-  // Alias para compatibilidade com páginas que usam { dados }
   const dados = data;
 
   const adicionar = async (novoDoc) => {

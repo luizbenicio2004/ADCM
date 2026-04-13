@@ -1,6 +1,4 @@
-// src/components/Sobre/Sobre.jsx
 import { Target, Eye } from "lucide-react";
-import { useReveal } from "../../hooks/useReveal";
 import { useCounter } from "../../hooks/useCounter";
 import { useConfig } from "../../context/ConfigContext";
 
@@ -18,13 +16,15 @@ function CardNumero({ valor, label }) {
 }
 
 export default function Sobre() {
-  const [refTexto, visivelTexto] = useReveal();
+  // ✅ CORRIGIDO: removido useReveal da div de texto — ela já está na viewport
+  // quando a página carrega e ficava presa em opacity-0 com dados assíncronos.
+  // O conteúdo aparece direto; a animação de entrada não se justifica aqui.
   const { config, loading } = useConfig();
 
   const sobre = config?.sobre ?? {};
   const numeros = sobre.numeros ?? [];
-  const missao = sobre.missao ?? "";
-  const visao = sobre.visao ?? "";
+  const missao  = sobre.missao ?? "";
+  const visao   = sobre.visao ?? "";
   const historia = sobre.historia ?? "";
   const versiculo = sobre.versiculo ?? "";
   const referenciaVersiculo = sobre.referenciaVersiculo ?? "";
@@ -33,13 +33,8 @@ export default function Sobre() {
     <section id="sobre" className="py-20 px-6 bg-white">
       <div className="max-w-[1200px] mx-auto grid lg:grid-cols-2 gap-16 items-start">
 
-        {/* ✅ opacity-100 por padrão — animação só se ainda não estiver visível */}
-        <div
-          ref={refTexto}
-          className={`flex flex-col gap-6 transition-all duration-700 ${
-            visivelTexto ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-          }`}
-        >
+        {/* COLUNA ESQUERDA — texto */}
+        <div className="flex flex-col gap-6">
           <div className="w-12 h-[2px] bg-blue-900" />
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Quem Somos</h2>
 
@@ -54,7 +49,11 @@ export default function Sobre() {
               <p key={i} className="text-gray-600 leading-relaxed">{paragrafo}</p>
             ))
           ) : (
-            <p className="text-gray-400 italic">Nenhuma história cadastrada ainda.</p>
+            <p className="text-gray-500 leading-relaxed">
+              Somos uma comunidade de fé plantada em Poá, SP, comprometida com a Palavra de Deus
+              e com o amor genuíno às pessoas. Aqui você encontra uma família que cuida,
+              um propósito que transforma e uma fé que sustenta.
+            </p>
           )}
 
           {versiculo && (
@@ -72,6 +71,7 @@ export default function Sobre() {
           </a>
         </div>
 
+        {/* COLUNA DIREITA — números, missão, visão */}
         <div className="flex flex-col gap-6">
           <div className="grid grid-cols-2 gap-4">
             {loading
@@ -81,9 +81,18 @@ export default function Sobre() {
                     <div className="h-3 bg-gray-200 rounded mx-auto w-24" />
                   </div>
                 ))
-              : numeros.map((item) => (
-                  <CardNumero key={item.label} valor={item.valor} label={item.label} />
-                ))
+              : numeros.length > 0
+                ? numeros.map((item) => (
+                    <CardNumero key={item.label} valor={item.valor} label={item.label} />
+                  ))
+                : [
+                    { valor: "10+", label: "Anos de História" },
+                    { valor: "200+", label: "Famílias" },
+                    { valor: "4",   label: "Ministérios" },
+                    { valor: "3",   label: "Cultos por Semana" },
+                  ].map((item) => (
+                    <CardNumero key={item.label} valor={item.valor} label={item.label} />
+                  ))
             }
           </div>
 
@@ -94,7 +103,7 @@ export default function Sobre() {
             <div>
               <h3 className="font-bold text-sm uppercase text-gray-800 mb-1">Nossa Missão</h3>
               <p className="text-sm text-gray-600">
-                {loading ? "…" : missao || "Não cadastrado."}
+                {loading ? "…" : missao || "Pregar o Evangelho, discipular vidas e impactar nossa comunidade com o amor de Cristo."}
               </p>
             </div>
           </div>
@@ -106,7 +115,7 @@ export default function Sobre() {
             <div>
               <h3 className="font-bold text-sm uppercase text-gray-800 mb-1">Nossa Visão</h3>
               <p className="text-sm text-gray-600">
-                {loading ? "…" : visao || "Não cadastrado."}
+                {loading ? "…" : visao || "Ser uma igreja de referência em Poá — onde toda pessoa encontra pertencimento, crescimento e propósito."}
               </p>
             </div>
           </div>

@@ -1,8 +1,8 @@
 // src/pages/AdminConfig.jsx
 import { useState, useEffect } from "react";
 import { useDoc } from "../hooks/useDoc";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Settings } from "lucide-react";
+import { Save, Settings } from "lucide-react";
+import AdminLayout from "../components/admin/AdminLayout";
 
 // ✅ Field FORA do componente pai — evita perda de foco ao digitar
 function Field({ label, name, value, onChange, placeholder, type = "text" }) {
@@ -22,7 +22,6 @@ function Field({ label, name, value, onChange, placeholder, type = "text" }) {
 }
 
 export default function AdminConfig() {
-  const navigate = useNavigate();
   const { data, loading, save } = useDoc("config", "site");
 
   const [form, setForm] = useState({
@@ -69,18 +68,8 @@ export default function AdminConfig() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin/dashboard")} className="text-gray-500 hover:text-gray-900 transition">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="font-bold text-gray-900">Configurações do Site</h1>
-          <p className="text-xs text-gray-500">Nome da igreja, contatos e redes sociais</p>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-6 py-10">
+    <AdminLayout title="Configurações do Site" subtitle="Nome da igreja, contatos e redes sociais">
+      <div className="max-w-2xl mx-auto">
         {loading ? (
           <div className="flex flex-col gap-4">
             {Array(6).fill(0).map((_, i) => (
@@ -121,7 +110,7 @@ export default function AdminConfig() {
             </button>
           </form>
         )}
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

@@ -24,7 +24,6 @@ export const ENDERECO = {
   cidade: "Poá",
   estado: "SP",
   cep:    "08565-520",
-  // Cole aqui o link do Google Maps da sua página (não o share)
   mapsUrl:  "https://www.google.com/maps?q=R.+Mal.+Deodoro,+100,+Poá,+SP",
   embedUrl: "https://www.google.com/maps?q=R.+Mal.+Deodoro,+100,+Poá,+SP&output=embed",
 };
@@ -104,21 +103,22 @@ export const NUMEROS = [
 // ESCOLA DE TEOLOGIA
 // ------------------------------------------------------------
 export const TEOLOGIA = {
-  plataformaUrl: "https://escola.adcmpoa.com", // URL real da plataforma
+  plataformaUrl: "https://escola.adcmpoa.com",
 };
 
 // ------------------------------------------------------------
-// AVISOS / PRÓXIMOS EVENTOS
+// AVISOS
 // Para ocultar a seção inteira, deixe o array vazio: []
 // Para ocultar um aviso específico, adicione: ativo: false
+// Tipos: "evento" | "aviso" | "urgente" | "info"
 // ------------------------------------------------------------
 export const AVISOS = [
   {
     id: 1,
-    tipo: "evento",      // "evento" | "aviso" | "urgente"
+    tipo: "evento",
     titulo: "Culto de Aniversário da Igreja",
-    descricao: "Celebração especial com louvores, homenagens e uma mensagem marcante. Traga sua família!",
-    data: "2025-06-15",  // formato AAAA-MM-DD
+    mensagem: "Celebração especial com louvores, homenagens e uma mensagem marcante. Traga sua família!",
+    data: "2025-06-15",
     horario: "18h30",
     local: "Templo Principal",
     ativo: true,
@@ -127,8 +127,8 @@ export const AVISOS = [
     id: 2,
     tipo: "aviso",
     titulo: "Escola de Teologia — Nova Turma",
-    descricao: "Estão abertas as inscrições para a nova turma da Escola de Teologia. Vagas limitadas.",
-    data: "",            // deixe vazio se não tiver data específica
+    mensagem: "Estão abertas as inscrições para a nova turma da Escola de Teologia. Vagas limitadas.",
+    data: "",
     horario: "",
     local: "",
     ativo: true,
@@ -137,10 +137,37 @@ export const AVISOS = [
     id: 3,
     tipo: "urgente",
     titulo: "Corrente de Oração",
-    descricao: "Nesta quinta-feira teremos uma corrente de oração especial. Contamos com sua presença e intercessão.",
+    mensagem: "Nesta quinta-feira teremos uma corrente de oração especial. Contamos com sua presença e intercessão.",
     data: "2025-06-12",
     horario: "19h30",
     local: "",
+    ativo: true,
+  },
+];
+
+// ------------------------------------------------------------
+// TESTEMUNHOS (fallback estático)
+// ------------------------------------------------------------
+export const TESTEMUNHOS = [
+  {
+    id: 1,
+    nome: "Ana Paula S.",
+    texto: "Cheguei na ADCM em um dos momentos mais difíceis da minha vida. Fui recebida com tanto amor que não consegui mais parar de voltar. Hoje tenho uma família aqui.",
+    tempo: "Membro há 3 anos",
+    ativo: true,
+  },
+  {
+    id: 2,
+    nome: "Ricardo M.",
+    texto: "Nunca imaginei que uma igreja pudesse mudar tanto minha visão de vida. Os cultos de quinta me recarregam para toda semana. É imperdível.",
+    tempo: "Membro há 5 anos",
+    ativo: true,
+  },
+  {
+    id: 3,
+    nome: "Josiane L.",
+    texto: "Meus filhos adoram o ministério infantil. Ver eles crescendo na fé com tanto cuidado é uma bênção que não tem preço. Obrigada, ADCM.",
+    tempo: "Membro há 2 anos",
     ativo: true,
   },
 ];

@@ -1,16 +1,20 @@
 // src/pages/admin/Ministerios.jsx
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+
+import AdminLayout from "../../components/admin/AdminLayout";
 import { collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import { useCollection } from "../../hooks/useCollection";
 import { useStorage } from "../../hooks/useStorage";
-import { ArrowLeft, Plus, Pencil, Trash2, X, Check, ImagePlus, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, ImagePlus, Loader2 } from "lucide-react";
+import OptimizedImage from "../../components/OptimizedImage";
+import { useToast } from "../../hooks/useToast";
+import { ToastContainer } from "../../components/Toast/Toast";
+import ConfirmDialog from "../../components/ConfirmDialog/ConfirmDialog";
 
 const VAZIO = {
   nome: "", descricao: "", responsavel: "", diaSemana: "", horario: "", ativo: true,
-  historia: "", youtubeUrl: "", fotoUrl: "", fotos: [],
-};
+  historia: "", youtubeUrl: "", fotoUrl: "", fotos: [] };
 const DIAS = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
 
 function Field({ label, name, value, onChange, placeholder }) {
@@ -24,13 +28,14 @@ function Field({ label, name, value, onChange, placeholder }) {
 }
 
 export default function AdminMinisterios() {
-  const navigate = useNavigate();
   const { data: ministerios, loading } = useCollection("ministerios");
   const { upload, remove: removeFile, progress, uploading } = useStorage();
 
   const [form, setForm] = useState(VAZIO);
   const [editandoId, setEditandoId] = useState(null);
   const [salvando, setSalvando] = useState(false);
+  const { toasts, addToast, removeToast } = useToast();
+  const [confirm, setConfirm] = useState({ open: false, id: null });
   const [erro, setErro] = useState("");
   const fotoCapaRef = useRef();
   const galeriaRef = useRef();
@@ -46,7 +51,7 @@ export default function AdminMinisterios() {
     try {
       const url = await upload(file, `ministerios/capas/${Date.now()}_${file.name}`);
       setForm((f) => ({ ...f, fotoUrl: url }));
-    } catch { setErro("Erro ao enviar foto de capa."); }
+    } catch { addToast("Erro ao enviar foto de capa.", "error"); }
   };
 
   const handleGaleria = async (e) => {
@@ -55,14 +60,14 @@ export default function AdminMinisterios() {
     try {
       const urls = await Promise.all(files.map((f) => upload(f, `ministerios/galeria/${Date.now()}_${f.name}`)));
       setForm((f) => ({ ...f, fotos: [...(f.fotos ?? []), ...urls] }));
-    } catch { setErro("Erro ao enviar fotos."); }
+    } catch { addToast("Erro ao enviar fotos.", "error"); }
   };
 
   const handleRemoverFoto = async (url) => {
     try {
       await removeFile(url);
       setForm((f) => ({ ...f, fotos: f.fotos.filter((u) => u !== url) }));
-    } catch { setErro("Erro ao remover foto."); }
+    } catch { addToast("Erro ao remover foto.", "error"); }
   };
 
   const handleSubmit = async (e) => {
@@ -78,7 +83,8 @@ export default function AdminMinisterios() {
       }
       setForm(VAZIO);
       setEditandoId(null);
-    } catch { setErro("Erro ao salvar."); }
+      addToast(editandoId ? "Ministério atualizado!" : "Ministério criado!");
+    } catch { addToast("Erro ao salvar.", "error"); }
     finally { setSalvando(false); }
   };
 
@@ -92,24 +98,17 @@ export default function AdminMinisterios() {
 
   const handleCancelar = () => { setForm(VAZIO); setEditandoId(null); setErro(""); };
 
-  const handleRemover = async (id) => {
-    if (!window.confirm("Excluir este ministério?")) return;
-    await deleteDoc(doc(db, "ministerios", id));
+  const handleRemoverConfirmado = async () => {
+    try {
+      await deleteDoc(doc(db, "ministerios", confirm.id));
+      addToast("Ministério excluído.");
+    } catch { addToast("Erro ao excluir.", "error"); }
+    finally { setConfirm({ open: false, id: null }); }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin/dashboard")} className="text-gray-500 hover:text-gray-900 transition">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="font-bold text-gray-900">Gerenciar Ministérios</h1>
-          <p className="text-xs text-gray-500">Fotos, vídeos e história de cada ministério</p>
-        </div>
-      </header>
-
-      <main className="max-w-3xl mx-auto px-6 py-10 flex flex-col gap-8">
+    <AdminLayout title="Gerenciar Ministérios" subtitle="Fotos, vídeos e história de cada ministério">
+      <div className="max-w-3xl flex flex-col gap-8">
         <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-5">
           <h2 className="font-semibold text-gray-800">{editandoId ? "✏️ Editar Ministério" : "➕ Novo Ministério"}</h2>
 
@@ -156,7 +155,7 @@ export default function AdminMinisterios() {
             <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Foto de capa</label>
             {form.fotoUrl && (
               <div className="relative w-40 h-24 rounded-lg overflow-hidden border border-gray-200">
-                <img src={form.fotoUrl} alt="capa" className="w-full h-full object-cover" />
+                <OptimizedImage src={form.fotoUrl} alt="capa" className="w-full h-full object-cover" />
                 <button type="button" onClick={() => setForm((f) => ({ ...f, fotoUrl: "" }))}
                   className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 hover:bg-black transition">
                   <X size={12} />
@@ -177,7 +176,7 @@ export default function AdminMinisterios() {
               <div className="flex flex-wrap gap-2">
                 {form.fotos.map((url) => (
                   <div key={url} className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
-                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <OptimizedImage src={url} alt="" className="w-full h-full object-cover" />
                     <button type="button" onClick={() => handleRemoverFoto(url)}
                       className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 hover:bg-black transition">
                       <X size={11} />
@@ -213,15 +212,15 @@ export default function AdminMinisterios() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <h2 className="font-semibold text-gray-800">Ministérios cadastrados</h2>
+          <h2 className="font-semibold text-gray-800">Ministérios configurados</h2>
           {loading ? (
             Array(3).fill(0).map((_, i) => <div key={i} className="h-20 bg-white rounded-xl border border-gray-200 animate-pulse" />)
           ) : ministerios.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-8">Nenhum ministério cadastrado.</p>
+            <p className="text-sm text-gray-500 text-center py-8">Nenhum ministério adicionado ainda.</p>
           ) : (
             ministerios.map((m) => (
               <div key={m.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-4">
-                {m.fotoUrl && <img src={m.fotoUrl} alt={m.nome} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />}
+                {m.fotoUrl && <OptimizedImage src={m.fotoUrl} alt={m.nome} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${m.ativo ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
@@ -235,13 +234,21 @@ export default function AdminMinisterios() {
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <button onClick={() => handleEditar(m)} className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"><Pencil size={15} /></button>
-                  <button onClick={() => handleRemover(m.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"><Trash2 size={15} /></button>
+                  <button onClick={() => setConfirm({ open: true, id: m.id })} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"><Trash2 size={15} /></button>
                 </div>
               </div>
             ))
           )}
         </div>
-      </main>
-    </div>
+      </div>
+      <ConfirmDialog
+        isOpen={confirm.open}
+        title="Excluir ministério?"
+        message="Esta ação não pode ser desfeita."
+        onConfirm={handleRemoverConfirmado}
+        onCancel={() => setConfirm({ open: false, id: null })}
+      />
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+    </AdminLayout>
   );
 }

@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import { useConfig } from "../../context/ConfigContext";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Radio } from "lucide-react";
+import AdminLayout from "../../components/admin/AdminLayout";
+import { Save, Radio } from "lucide-react";
 
 function toEmbedUrl(url) {
   if (!url) return null;
@@ -12,7 +12,6 @@ function toEmbedUrl(url) {
 }
 
 export default function AdminLive() {
-  const navigate = useNavigate();
   const { config, loading } = useConfig();
   const [liveUrl, setLiveUrl] = useState("");
   const [liveAtivo, setLiveAtivo] = useState(false);
@@ -42,18 +41,8 @@ export default function AdminLive() {
   const embedUrl = toEmbedUrl(liveUrl);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin/dashboard")} className="text-gray-500 hover:text-gray-900 transition">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="font-bold text-gray-900">Transmissão ao Vivo</h1>
-          <p className="text-xs text-gray-500">Ative e configure a live do YouTube no site</p>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-6 py-10">
+    <AdminLayout title="Transmissão ao Vivo" subtitle="Ative e configure a live do YouTube no site">
+      <div className="max-w-2xl ">
         {loading ? (
           <div className="flex flex-col gap-4">{Array(3).fill(0).map((_, i) => <div key={i} className="h-10 bg-gray-200 rounded-lg animate-pulse" />)}</div>
         ) : (
@@ -112,7 +101,7 @@ export default function AdminLive() {
             </div>
           </form>
         )}
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

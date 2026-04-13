@@ -1,6 +1,6 @@
 import { Music2, Star, Flame, Heart, Users, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useRevealStagger } from "../../hooks/useReveal";
+
 import { useCollection } from "../../hooks/useCollection";
 import { MINISTERIOS as MINISTERIOS_ESTATICOS } from "../../data/igreja";
 
@@ -14,11 +14,12 @@ const CORES = [
 ];
 
 export default function Ministerios() {
-  const gridRef = useRevealStagger();
-  const { dados = [], loading } = useCollection("ministerios");
+  // ✅ CORRIGIDO: callback ref — observer registrado após dados chegarem
+  
+  const { data: ministerios = [], loading, error } = useCollection("ministerios");
 
-  const ativos = dados.filter((m) => m.ativo);
-  const usandoFirestore = ativos.length > 0;
+  const ativos = ministerios.filter((m) => m.ativo !== false);
+  const usandoFirestore = !loading && ministerios.length > 0;
   const lista = usandoFirestore ? ativos : MINISTERIOS_ESTATICOS;
 
   return (
@@ -27,8 +28,12 @@ export default function Ministerios() {
         <div className="text-center max-w-[600px] mx-auto mb-12">
           <div className="w-12 h-[2px] bg-blue-900 mx-auto mb-4" />
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Nossos Ministérios</h2>
-          <p className="text-gray-600">Cada ministério é uma forma de servir a Deus e às pessoas. Encontre onde você pode se envolver.</p>
+          <p className="text-gray-600">
+            Tem um dom que você ainda não descobriu. Nossos ministérios existem para isso.
+          </p>
         </div>
+
+        {error && <p className="text-center text-gray-400 mb-8">Não conseguimos carregar os ministérios agora. Tente recarregar a página.</p>}
 
         {loading ? (
           <div className="grid gap-4 md:grid-cols-2">
@@ -44,7 +49,7 @@ export default function Ministerios() {
             ))}
           </div>
         ) : (
-          <div ref={gridRef} className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             {lista.map((min, index) => {
               const inner = (
                 <>
@@ -67,12 +72,14 @@ export default function Ministerios() {
                 </>
               );
 
-              const cls = "flex items-start gap-4 p-6 rounded-xl border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300";
+              const animClass = `flex items-start gap-4 p-6 rounded-xl border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all`;
+              const animStyle = {};
 
               return usandoFirestore ? (
-                <Link key={min.id} to={`/ministerio/${min.id}`} className={cls + " hover:border-blue-900/20"}>{inner}</Link>
+                <Link key={min.id} to={`/ministerio/${min.id}`}
+                  className={animClass + " hover:border-blue-900/20"} style={animStyle}>{inner}</Link>
               ) : (
-                <div key={min.id} className={cls}>{inner}</div>
+                <div key={min.id ?? index} className={animClass} style={animStyle}>{inner}</div>
               );
             })}
           </div>

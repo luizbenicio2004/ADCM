@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../../services/firebase";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
+import AdminLayout from "../../components/admin/AdminLayout";
+import { Save, Plus, Trash2 } from "lucide-react";
+import { useToast } from "../../hooks/useToast";
+import { ToastContainer } from "../../components/Toast/Toast";
 
 const FORM_VAZIO = {
   descricao: "",
@@ -10,17 +12,15 @@ const FORM_VAZIO = {
   referenciaVersiculo: "",
   materiais: [],
   metaReais: 0,
-  arrecadadoReais: 0,
-};
+  arrecadadoReais: 0 };
 
 export default function AdminReciclagem() {
-  const navigate = useNavigate();
   const [form, setForm] = useState(FORM_VAZIO);
   const [novoMaterial, setNovoMaterial] = useState("");
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
-  const [sucesso, setSucesso] = useState(false);
   const [erro, setErro] = useState("");
+  const { toasts, addToast, removeToast } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -49,33 +49,20 @@ export default function AdminReciclagem() {
     setSalvando(true);
     try {
       await setDoc(doc(db, "config", "reciclagem"), form, { merge: true });
-      setSucesso(true);
-      setTimeout(() => setSucesso(false), 3000);
-    } catch { setErro("Erro ao salvar."); }
+      addToast("Configurações salvas com sucesso!");
+    } catch { addToast("Erro ao salvar.", "error"); }
     finally { setSalvando(false); }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin/dashboard")} className="text-gray-500 hover:text-gray-900 transition">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="font-bold text-gray-900">Projeto Reciclagem</h1>
-          <p className="text-xs text-gray-500">Gerencie a seção de reciclagem do site</p>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-6 py-10">
+    <AdminLayout title="Projeto Reciclagem" subtitle="Gerencie a seção de reciclagem do site">
+      <div className="max-w-2xl ">
         {loading ? (
           <div className="flex flex-col gap-4">{Array(5).fill(0).map((_, i) => <div key={i} className="h-10 bg-gray-200 rounded-lg animate-pulse" />)}</div>
         ) : (
           <form onSubmit={handleSave} className="flex flex-col gap-6">
             {erro && <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{erro}</div>}
-            {sucesso && <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3">✅ Salvo!</div>}
-
-            {/* Descrição */}
+{/* Descrição */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-4">
               <h2 className="font-semibold text-gray-800">Descrição</h2>
               <textarea name="descricao" rows={3} value={form.descricao} onChange={handleChange}
@@ -153,7 +140,8 @@ export default function AdminReciclagem() {
             </button>
           </form>
         )}
-      </main>
-    </div>
+      </div>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+    </AdminLayout>
   );
 }

@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useCollection } from "../../hooks/useCollection";
+import { useToast } from "../../hooks/useToast";
+import AdminLayout from "../../components/admin/AdminLayout";
+import { ToastContainer } from "../../components/Toast/Toast";
+import ConfirmDialog from "../../components/ConfirmDialog/ConfirmDialog";
+import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
 
-const VAZIO = {
-  titulo: "",
-  mensagem: "",
-  tipo: "aviso",
-  ativo: true,
-};
-
+const VAZIO = { titulo: "", mensagem: "", tipo: "aviso", ativo: true };
 const TIPO_ESTILO = {
   urgente: "bg-red-100 text-red-700",
   aviso:   "bg-yellow-100 text-yellow-700",
@@ -16,11 +14,13 @@ const TIPO_ESTILO = {
 };
 
 export default function AdminAvisos() {
-  const navigate = useNavigate();
-  const { dados: avisos, loading, adicionar, atualizar, remover } = useCollection("avisos");
+  const { dados: avisos = [], loading, adicionar, atualizar, remover } = useCollection("avisos");
+  const { toasts, addToast, removeToast } = useToast();
   const [form, setForm] = useState(VAZIO);
   const [editandoId, setEditandoId] = useState(null);
   const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState("");
+  const [confirm, setConfirm] = useState({ open: false, id: null });
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -29,167 +29,135 @@ export default function AdminAvisos() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (!form.titulo || !form.mensagem) { setErro("Título e mensagem são obrigatórios."); return; }
+    setErro("");
     setSalvando(true);
     try {
-      if (editandoId) {
-        await atualizar(editandoId, form);
-      } else {
-        await adicionar(form);
-      }
+      editandoId ? await atualizar(editandoId, form) : await adicionar(form);
       setForm(VAZIO);
       setEditandoId(null);
-    } finally {
-      setSalvando(false);
-    }
+      addToast(editandoId ? "Aviso atualizado!" : "Aviso criado com sucesso!");
+    } catch { addToast("Erro ao salvar. Tente novamente.", "error"); }
+    finally { setSalvando(false); }
   }
 
   function handleEditar(aviso) {
-    setForm({
-      titulo: aviso.titulo ?? "",
-      mensagem: aviso.mensagem ?? "",
-      tipo: aviso.tipo ?? "aviso",
-      ativo: aviso.ativo ?? true,
-    });
+    setForm({ titulo: aviso.titulo ?? "", mensagem: aviso.mensagem ?? "", tipo: aviso.tipo ?? "aviso", ativo: aviso.ativo ?? true });
     setEditandoId(aviso.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function handleCancelar() {
-    setForm(VAZIO);
-    setEditandoId(null);
-  }
+  function handleCancelar() { setForm(VAZIO); setEditandoId(null); setErro(""); }
 
-  async function handleRemover(id) {
-    if (confirm("Tem certeza que deseja excluir este aviso?")) {
-      await remover(id);
-    }
+  async function handleRemover() {
+    try {
+      await remover(confirm.id);
+      addToast("Aviso excluído.");
+    } catch { addToast("Erro ao excluir.", "error"); }
+    finally { setConfirm({ open: false, id: null }); }
   }
 
   async function handleToggleAtivo(aviso) {
     await atualizar(aviso.id, { ativo: !aviso.ativo });
+    addToast(aviso.ativo ? "Aviso ocultado." : "Aviso publicado!");
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin/dashboard")} className="text-gray-500 hover:text-gray-800 text-sm">
-          ← Voltar
-        </button>
-        <h1 className="font-bold text-gray-900">Gerenciar Avisos</h1>
-      </header>
+    <AdminLayout title="Gerenciar Avisos" subtitle="Publique e gerencie avisos da igreja">
+      <div className="flex flex-col gap-8">
 
-      <main className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-8">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="font-bold text-gray-900 mb-4">
-            {editandoId ? "✏️ Editando aviso" : "➕ Novo aviso"}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-4">
+          <h2 className="font-semibold text-gray-800">
+            {editandoId ? "✏️ Editar aviso" : "➕ Novo aviso"}
           </h2>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
-                <input
-                  name="titulo" value={form.titulo} onChange={handleChange} required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
-                  placeholder="Ex: Atenção — mudança de horário"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                <select
-                  name="tipo" value={form.tipo} onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
-                >
-                  <option value="aviso">Aviso</option>
-                  <option value="urgente">Urgente</option>
-                  <option value="info">Informação</option>
-                </select>
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mensagem *</label>
-              <textarea
-                name="mensagem" value={form.mensagem} onChange={handleChange} required rows={3}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
-                placeholder="Escreva a mensagem do aviso..."
-              />
-            </div>
+          {erro && <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{erro}</div>}
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox" name="ativo" checked={form.ativo} onChange={handleChange}
-                id="ativo" className="rounded"
-              />
-              <label htmlFor="ativo" className="text-sm text-gray-700">
-                Publicar aviso (visível no site)
-              </label>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Título *</label>
+              <input name="titulo" value={form.titulo} onChange={handleChange}
+                placeholder="Ex: Mudança de horário"
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
             </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Tipo</label>
+              <select name="tipo" value={form.tipo} onChange={handleChange}
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30">
+                <option value="aviso">Aviso</option>
+                <option value="urgente">Urgente</option>
+                <option value="info">Informação</option>
+              </select>
+            </div>
+          </div>
 
-            <div className="flex gap-3">
-              <button
-                type="submit" disabled={salvando}
-                className="bg-blue-900 text-white font-bold px-6 py-2 rounded-lg hover:bg-blue-800 transition disabled:opacity-50 text-sm"
-              >
-                {salvando ? "Salvando..." : editandoId ? "Salvar alterações" : "Criar aviso"}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Mensagem *</label>
+            <textarea name="mensagem" value={form.mensagem} onChange={handleChange} rows={3}
+              placeholder="Escreva a mensagem do aviso..."
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input type="checkbox" name="ativo" checked={form.ativo} onChange={handleChange} id="ativo" className="rounded" />
+            <label htmlFor="ativo" className="text-sm text-gray-700">Publicar (visível no site)</label>
+          </div>
+
+          <div className="flex gap-3">
+            <button onClick={handleSubmit} disabled={salvando}
+              className="flex items-center gap-2 bg-blue-900 text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-blue-800 transition disabled:opacity-60">
+              <Check size={16} /> {salvando ? "Salvando…" : editandoId ? "Salvar alterações" : "Criar aviso"}
+            </button>
+            {editandoId && (
+              <button onClick={handleCancelar}
+                className="flex items-center gap-2 text-sm font-semibold text-gray-600 px-5 py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
+                <X size={16} /> Cancelar
               </button>
-              {editandoId && (
-                <button type="button" onClick={handleCancelar}
-                  className="border border-gray-300 text-gray-700 font-medium px-6 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
-                  Cancelar
-                </button>
-              )}
-            </div>
-          </form>
+            )}
+          </div>
         </div>
 
-        <div>
-          <h2 className="font-bold text-gray-900 mb-4">Avisos cadastrados</h2>
+        <div className="flex flex-col gap-3">
+          <h2 className="font-semibold text-gray-800">Avisos publicados</h2>
           {loading ? (
-            <p className="text-gray-500 text-sm">Carregando...</p>
+            Array(3).fill(0).map((_, i) => <div key={i} className="h-20 bg-white rounded-xl border border-gray-200 animate-pulse" />)
           ) : avisos.length === 0 ? (
-            <p className="text-gray-500 text-sm">Nenhum aviso cadastrado ainda.</p>
+            <p className="text-sm text-gray-500 text-center py-8">Nenhum aviso ainda. Que tal criar o primeiro?</p>
           ) : (
-            <div className="flex flex-col gap-3">
-              {avisos.map((a) => (
-                <div key={a.id} className="bg-white border border-gray-200 rounded-xl p-4 flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${TIPO_ESTILO[a.tipo] ?? TIPO_ESTILO.aviso}`}>
-                        {a.tipo}
-                      </span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        a.ativo ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
-                      }`}>
-                        {a.ativo ? "publicado" : "oculto"}
-                      </span>
-                    </div>
-                    <h3 className="font-semibold text-gray-900 text-sm">{a.titulo}</h3>
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">{a.mensagem}</p>
+            avisos.map((a) => (
+              <div key={a.id} className="bg-white border border-gray-200 rounded-xl p-4 flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${TIPO_ESTILO[a.tipo] ?? TIPO_ESTILO.aviso}`}>{a.tipo}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${a.ativo ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                      {a.ativo ? "publicado" : "oculto"}
+                    </span>
                   </div>
-                  <div className="flex flex-col gap-2 flex-shrink-0">
-                    <button onClick={() => handleToggleAtivo(a)}
-                      className={`text-xs px-3 py-1 rounded-lg transition border ${
-                        a.ativo
-                          ? "border-yellow-300 text-yellow-700 hover:bg-yellow-50"
-                          : "border-green-300 text-green-700 hover:bg-green-50"
-                      }`}>
-                      {a.ativo ? "Ocultar" : "Publicar"}
-                    </button>
-                    <button onClick={() => handleEditar(a)}
-                      className="text-xs border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-50 transition">
-                      Editar
-                    </button>
-                    <button onClick={() => handleRemover(a.id)}
-                      className="text-xs border border-red-200 text-red-600 px-3 py-1 rounded-lg hover:bg-red-50 transition">
-                      Excluir
-                    </button>
-                  </div>
+                  <h3 className="font-semibold text-gray-900 text-sm">{a.titulo}</h3>
+                  <p className="text-sm text-gray-600 mt-0.5 line-clamp-2">{a.mensagem}</p>
                 </div>
-              ))}
-            </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button onClick={() => handleToggleAtivo(a)}
+                    className={`text-xs px-3 py-1 rounded-lg transition border ${a.ativo ? "border-yellow-300 text-yellow-700 hover:bg-yellow-50" : "border-green-300 text-green-700 hover:bg-green-50"}`}>
+                    {a.ativo ? "Ocultar" : "Publicar"}
+                  </button>
+                  <button onClick={() => handleEditar(a)} className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"><Pencil size={15} /></button>
+                  <button onClick={() => setConfirm({ open: true, id: a.id })} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"><Trash2 size={15} /></button>
+                </div>
+              </div>
+            ))
           )}
         </div>
-      </main>
-    </div>
+      </div>
+
+      <ConfirmDialog
+        isOpen={confirm.open}
+        title="Excluir aviso?"
+        message="Esta ação não pode ser desfeita."
+        onConfirm={handleRemover}
+        onCancel={() => setConfirm({ open: false, id: null })}
+      />
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+    </AdminLayout>
   );
 }

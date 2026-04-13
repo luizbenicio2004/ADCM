@@ -7,7 +7,7 @@ export default function PrivateRoute({ children }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Verificando acesso...</p>
+        <p className="text-gray-500">Verificando suas credenciais...</p>
       </div>
     );
   }

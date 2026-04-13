@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import { useConfig } from "../../context/ConfigContext";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, MapPin } from "lucide-react";
+import AdminLayout from "../../components/admin/AdminLayout";
+import { Save, MapPin } from "lucide-react";
 
 const FORM_VAZIO = { rua: "", bairro: "", cep: "", cidade: "", estado: "SP", mapsUrl: "", embedUrl: "" };
 
@@ -18,7 +18,6 @@ function Field({ label, name, value, onChange, placeholder }) {
 }
 
 export default function AdminEndereco() {
-  const navigate = useNavigate();
   const { config, loading } = useConfig();
   const [form, setForm] = useState(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
@@ -45,18 +44,8 @@ export default function AdminEndereco() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin/dashboard")} className="text-gray-500 hover:text-gray-900 transition">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="font-bold text-gray-900">Endereço da Igreja</h1>
-          <p className="text-xs text-gray-500">Edite o endereço exibido no site</p>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-6 py-10">
+    <AdminLayout title="Endereço da Igreja" subtitle="Edite o endereço exibido no site">
+      <div className="max-w-2xl ">
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-6">
             <div className="w-9 h-9 flex items-center justify-center bg-blue-900/10 rounded-lg text-blue-900">
@@ -97,7 +86,7 @@ export default function AdminEndereco() {
             </form>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

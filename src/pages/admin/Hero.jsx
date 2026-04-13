@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import { useConfig } from "../../context/ConfigContext";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Layout } from "lucide-react";
+import AdminLayout from "../../components/admin/AdminLayout";
+import { Save, Layout } from "lucide-react";
 
 const FORM_VAZIO = {
   titulo: "Igreja ADCM Poá",
@@ -13,7 +13,7 @@ const FORM_VAZIO = {
   botaoSecundario: "Como Chegar →",
   botaoSecundarioLink: "#localizacao",
   badge: "Bem-vindo à nossa família",
-};
+  imagemFundo: "" };
 
 function Field({ label, name, value, onChange, placeholder, hint }) {
   return (
@@ -27,7 +27,6 @@ function Field({ label, name, value, onChange, placeholder, hint }) {
 }
 
 export default function AdminHero() {
-  const navigate = useNavigate();
   const { config, loading } = useConfig();
   const [form, setForm] = useState(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
@@ -54,18 +53,8 @@ export default function AdminHero() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin/dashboard")} className="text-gray-500 hover:text-gray-900 transition">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="font-bold text-gray-900">Banner Principal (Hero)</h1>
-          <p className="text-xs text-gray-500">Título, subtítulo e botões da tela inicial</p>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-6 py-10">
+    <AdminLayout title="Banner Principal (Hero)" subtitle="Título, subtítulo e botões da tela inicial">
+      <div className="max-w-2xl flex flex-col gap-6">
         {loading ? (
           <div className="flex flex-col gap-4">{Array(6).fill(0).map((_, i) => <div key={i} className="h-10 bg-gray-200 rounded-lg animate-pulse" />)}</div>
         ) : (
@@ -101,6 +90,14 @@ export default function AdminHero() {
             </div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-4">
+              <h2 className="font-semibold text-gray-800">🖼️ Imagem de fundo (opcional)</h2>
+              <Field label="URL da imagem de fundo"
+                name="imagemFundo" value={form.imagemFundo ?? ""} onChange={handleChange}
+                placeholder="https://... (deixe vazio para usar o gradiente padrão)"
+                hint="Use uma imagem de alta resolução. O gradiente azul será aplicado por cima." />
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-4">
               <h2 className="font-semibold text-gray-800">🔴 Botão primário (vermelho)</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 <Field label="Texto" name="botaoPrimario" value={form.botaoPrimario} onChange={handleChange} placeholder="Ex: Ver Cultos" />
@@ -124,7 +121,7 @@ export default function AdminHero() {
             </button>
           </form>
         )}
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

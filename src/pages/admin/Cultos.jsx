@@ -2,20 +2,24 @@ import { useState } from "react";
 import { collection, addDoc, deleteDoc, doc, updateDoc, getDocs } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import { useCollection } from "../../hooks/useCollection";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Star, Pencil, Trash2, X, Check } from "lucide-react";
+import { useToast } from "../../hooks/useToast";
+import AdminLayout from "../../components/admin/AdminLayout";
+import { ToastContainer } from "../../components/Toast/Toast";
+import ConfirmDialog from "../../components/ConfirmDialog/ConfirmDialog";
+import { Plus, Star, Pencil, Trash2, X, Check } from "lucide-react";
 
 const DIAS = ["Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado","Domingo"];
 const FORM_VAZIO = { dia: "", horario: "", nome: "", descricao: "", obs: "" };
 
 export default function AdminCultos() {
-  const navigate = useNavigate();
   const { data: cultos, loading } = useCollection("cultos");
+  const { toasts, addToast, removeToast } = useToast();
 
   const [form, setForm] = useState(FORM_VAZIO);
   const [editando, setEditando] = useState(null);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
+  const [confirm, setConfirm] = useState({ open: false, id: null });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,7 +42,8 @@ export default function AdminCultos() {
     try {
       await addDoc(collection(db, "cultos"), { ...form, destaque: false });
       setForm(FORM_VAZIO);
-    } catch { setErro("Erro ao salvar. Tente novamente."); }
+      addToast("Culto adicionado com sucesso!");
+    } catch { addToast("Erro ao salvar. Tente novamente.", "error"); }
     finally { setSalvando(false); }
   };
 
@@ -46,6 +51,7 @@ export default function AdminCultos() {
     setEditando(culto.id);
     setForm({ dia: culto.dia, horario: culto.horario, nome: culto.nome ?? "", descricao: culto.descricao ?? "", obs: culto.obs ?? "" });
     setErro("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const cancelarEdicao = () => { setEditando(null); setForm(FORM_VAZIO); setErro(""); };
@@ -59,13 +65,17 @@ export default function AdminCultos() {
       await updateDoc(doc(db, "cultos", editando), { ...form });
       setEditando(null);
       setForm(FORM_VAZIO);
-    } catch { setErro("Erro ao atualizar."); }
+      addToast("Culto atualizado com sucesso!");
+    } catch { addToast("Erro ao atualizar.", "error"); }
     finally { setSalvando(false); }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Excluir este culto?")) return;
-    await deleteDoc(doc(db, "cultos", id));
+  const handleDelete = async () => {
+    try {
+      await deleteDoc(doc(db, "cultos", confirm.id));
+      addToast("Culto excluído.");
+    } catch { addToast("Erro ao excluir.", "error"); }
+    finally { setConfirm({ open: false, id: null }); }
   };
 
   const tornarPrincipal = async (cultoId) => {
@@ -73,23 +83,13 @@ export default function AdminCultos() {
     await Promise.all(snapshot.docs.map((d) =>
       updateDoc(doc(db, "cultos", d.id), { destaque: d.id === cultoId })
     ));
+    addToast("Culto principal atualizado!");
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin/dashboard")} className="text-gray-500 hover:text-gray-900 transition">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="font-bold text-gray-900">Gerenciar Cultos</h1>
-          <p className="text-xs text-gray-500">Adicione, edite ou remova os cultos da semana</p>
-        </div>
-      </header>
+    <AdminLayout title="Gerenciar Cultos" subtitle="Adicione, edite ou remova os cultos da semana">
+      <div className="max-w-3xl flex flex-col gap-8">
 
-      <main className="max-w-3xl mx-auto px-6 py-10 flex flex-col gap-8">
-
-        {/* Formulário */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="font-semibold text-gray-800 mb-4">
             {editando ? "✏️ Editar Culto" : "➕ Novo Culto"}
@@ -151,15 +151,14 @@ export default function AdminCultos() {
           </div>
         </div>
 
-        {/* Lista */}
         <div className="flex flex-col gap-3">
-          <h2 className="font-semibold text-gray-800">Cultos cadastrados</h2>
+          <h2 className="font-semibold text-gray-800">Cultos configurados</h2>
           {loading ? (
             Array(3).fill(0).map((_, i) => (
               <div key={i} className="h-20 bg-white rounded-xl border border-gray-200 animate-pulse" />
             ))
           ) : cultos.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-8">Nenhum culto cadastrado ainda.</p>
+            <p className="text-sm text-gray-500 text-center py-8">Nenhum culto adicionado ainda. Comece pelo botão acima!</p>
           ) : (
             cultos.map((culto) => (
               <div key={culto.id}
@@ -192,7 +191,7 @@ export default function AdminCultos() {
                     className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition">
                     <Pencil size={16} />
                   </button>
-                  <button onClick={() => handleDelete(culto.id)}
+                  <button onClick={() => setConfirm({ open: true, id: culto.id })}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
                     <Trash2 size={16} />
                   </button>
@@ -201,7 +200,16 @@ export default function AdminCultos() {
             ))
           )}
         </div>
-      </main>
-    </div>
+      </div>
+
+      <ConfirmDialog
+        isOpen={confirm.open}
+        title="Excluir culto?"
+        message="Esta ação não pode ser desfeita."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirm({ open: false, id: null })}
+      />
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+    </AdminLayout>
   );
 }

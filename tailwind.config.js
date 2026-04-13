@@ -16,6 +16,8 @@ export default {
         accent: "#fbbf24",
         "bg-alt": "#f9fafb",
         "bg-dark": "#0d1b4b",
+        // ✅ CORRIGIDO: alias necessário para a classe bg-bg-dark usada em Teologia.jsx
+        "bg-bg-dark": "#0d1b4b",
         "text-muted": "#6b7280",
         "text-light": "#9ca3af",
         border: "#e5e7eb",

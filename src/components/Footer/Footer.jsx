@@ -1,26 +1,27 @@
-// src/components/Footer/Footer.jsx
 import { FaInstagram, FaFacebook, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { CULTOS } from "../../data/igreja";
 import { useConfig } from "../../context/ConfigContext";
 import { useCollection } from "../../hooks/useCollection";
 import { Link } from "react-router-dom";
+import { sortCultos } from "../../utils/sortCultos";
+import OptimizedImage from "../OptimizedImage";
 
 export default function Footer() {
   const { loading, config } = useConfig();
-  const { data: cultosFirestore } = useCollection("cultos");
+  const { data: cultosFirestore = [], loading: cultosLoading } = useCollection("cultos");
   const ano = new Date().getFullYear();
 
-  const cultos = cultosFirestore?.length > 0 ? cultosFirestore : CULTOS;
-  const cultosOrdenados = [...cultos].sort((a, b) => {
-    const ordem = { domingo: 0, segunda: 1, "segunda-feira": 1, terça: 2, "terça-feira": 2, quarta: 3, "quarta-feira": 3, quinta: 4, "quinta-feira": 4, sexta: 5, "sexta-feira": 5, sábado: 6 };
-    const norm = (s = "") => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    return (ordem[norm(a.dia)] ?? 99) - (ordem[norm(b.dia)] ?? 99);
-  });
+  const cultos = cultosFirestore.length > 0 ? cultosFirestore : (cultosLoading ? [] : CULTOS);
+  const cultosOrdenados = sortCultos(cultos);
 
   const instagram = config?.instagram;
   const facebook  = config?.facebook;
   const youtube   = config?.youtube;
   const whatsapp  = config?.whatsapp;
+
+  // Versículo: prioriza o cadastrado no admin, fallback clássico
+  const versiculoRodape = config?.sobre?.versiculoRodape
+    || "O Senhor é o meu pastor e nada me faltará. — Salmos 23:1";
 
   return (
     <footer className="bg-gray-950 text-gray-400">
@@ -32,8 +33,8 @@ export default function Footer() {
             {/* COLUNA PRINCIPAL */}
             <div className="lg:col-span-1">
               <div className="flex items-center gap-3 mb-4">
-                <img
-                  src="/logo.png"
+                <OptimizedImage
+                  src="/logo.webp"
                   alt="Logo ADCM Poá"
                   loading="lazy"
                   width="48"
@@ -42,13 +43,13 @@ export default function Footer() {
                 />
                 <div>
                   <span className="block text-white font-bold text-lg leading-tight">
-                    {loading ? "Carregando..." : config?.nome || "ADCM Poá"}
+                    {loading ? "ADCM Poá" : config?.nome || "ADCM Poá"}
                   </span>
                   <span className="text-xs uppercase tracking-widest text-gray-400">Assembleia de Deus</span>
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-6 max-w-[280px]">
-                Uma igreja comprometida com a Palavra de Deus,
+                Uma comunidade comprometida com a Palavra de Deus,
                 comunhão e amor ao próximo. Venha fazer parte desta família.
               </p>
               <div className="flex flex-col gap-2">
@@ -95,11 +96,18 @@ export default function Footer() {
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Navegação</h3>
               <ul className="flex flex-col gap-2">
-                {["sobre", "cultos", "ministerios", "teologia", "localizacao"].map((item) => (
-                  <li key={item}>
-                    <a href={`#${item}`} className="flex items-center gap-2 text-sm hover:text-white hover:gap-3 transition-all capitalize">
+                {[
+                  { href: "/#sobre", label: "Quem Somos" },
+                  { href: "/#cultos", label: "Cultos" },
+                  { href: "/#ministerios", label: "Ministérios" },
+                  { href: "/#teologia", label: "Teologia" },
+                  { href: "/#eventos", label: "Eventos" },
+                  { href: "/#localizacao", label: "Localização" },
+                ].map(({ href, label }) => (
+                  <li key={href}>
+                    <a href={href} className="flex items-center gap-2 text-sm hover:text-white hover:gap-3 transition-all">
                       <span className="text-blue-400 text-xs">→</span>
-                      {item.charAt(0).toUpperCase() + item.slice(1)}
+                      {label}
                     </a>
                   </li>
                 ))}
@@ -130,7 +138,7 @@ export default function Footer() {
                     {config.endereco.cep && <>CEP: {config.endereco.cep}</>}
                   </>
                 ) : (
-                  "Endereço não informado"
+                  "Endereço ainda não configurado."
                 )}
               </address>
               {whatsapp && (
@@ -146,14 +154,14 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ✅ Rodapé inferior com link para o painel admin */}
+      {/* Rodapé inferior */}
       <div className="py-6">
         <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 text-center md:text-left">
-          <p>{ano} {config?.nome || "ADCM Poá"} · Todos os direitos reservados</p>
-          <p className="italic">O Senhor é o meu pastor e nada me faltará. — Salmos 23:1</p>
+          <p>© {ano} {config?.nome || "ADCM Poá"} · Todos os direitos reservados</p>
+          <p className="italic">{versiculoRodape}</p>
           <Link
             to="/admin/login"
-            className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors duration-300 text-xs border border-gray-700 hover:border-gray-400 px-3 py-1 rounded"
+            className="flex items-center gap-1 text-gray-600 hover:text-white transition-colors duration-300 text-xs border border-gray-700 hover:border-gray-400 px-3 py-1 rounded"
             title="Área do administrador"
           >
             ⚙️ Painel Admin
