@@ -9,7 +9,6 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === "/";
-  // Fora da home o header sempre fica com fundo branco (sem hero escuro por baixo)
   const solidBg = !isHome || scrolled;
 
   const handleScroll = useCallback(() => {
@@ -28,7 +27,6 @@ export default function Header() {
 
   const handleLinkClick = useCallback(() => setMenuOpen(false), []);
 
-  // Quando não está na home, linka para /#secao para voltar e rolar corretamente
   const navHref = (id) => isHome ? `#${id}` : `/#${id}`;
 
   const items = ["sobre", "cultos", "ministerios", "eventos", "reciclagem", "avisos", "teologia"];
@@ -46,7 +44,9 @@ export default function Header() {
     <header
       className={[
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        solidBg ? "bg-white/95 backdrop-blur-md shadow-md" : "bg-transparent",
+        solidBg
+          ? "bg-white/95 backdrop-blur-md shadow-md"
+          : "bg-white/95 backdrop-blur-md shadow-md md:bg-transparent md:shadow-none md:backdrop-blur-none",
       ].join(" ")}
     >
       <div className="max-w-[1100px] mx-auto px-6 h-[72px] flex items-center justify-between">
@@ -58,11 +58,13 @@ export default function Header() {
             className="w-[60px] h-[60px] object-contain rounded-full"
           />
           <div>
-            <span className={`block text-lg font-bold leading-tight transition-colors duration-300 ${solidBg ? "text-blue-900" : "text-white"}`}
-              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+            <span
+              className={`block text-lg font-bold leading-tight transition-colors duration-300 text-blue-900 ${!solidBg ? "md:text-white" : ""}`}
+              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+            >
               {loading ? "ADCM Poá" : config?.nome || "ADCM Poá"}
             </span>
-            <span className={`block text-xs tracking-widest uppercase leading-none transition-colors duration-300 ${solidBg ? "text-gray-500" : "text-white/70"}`}>
+            <span className={`block text-xs tracking-widest uppercase leading-none transition-colors duration-300 text-gray-500 ${!solidBg ? "md:text-white/70" : ""}`}>
               Assembleia de Deus
             </span>
           </div>
@@ -86,6 +88,7 @@ export default function Header() {
             </a>
           ))}
           <a
+
             href={navHref("localizacao")}
             onClick={handleLinkClick}
             className="text-sm font-bold text-white bg-red-600 px-4 py-2 rounded-sm hover:bg-red-700 hover:-translate-y-px transition-all duration-300"
@@ -117,7 +120,7 @@ export default function Header() {
               before:content-[''] before:absolute before:left-0 before:-top-[7px] before:w-full before:h-[2px] before:rounded-full
               after:content-[''] after:absolute after:left-0 after:top-[7px] after:w-full after:h-[2px] after:rounded-full
               transition-colors duration-300
-              ${solidBg ? "bg-gray-800 before:bg-gray-800 after:bg-gray-800" : "bg-white before:bg-white after:bg-white"}`}
+              bg-gray-800 before:bg-gray-800 after:bg-gray-800 ${!solidBg ? "md:bg-white md:before:bg-white md:after:bg-white" : ""}`}
             aria-hidden="true"
           />
         </button>
@@ -155,7 +158,7 @@ export default function Header() {
 
         <nav className="flex flex-col gap-2 flex-1 overflow-y-auto">
           {items.map((item) => (
-            <a
+            <a  
               key={item}
               href={navHref(item)}
               onClick={handleLinkClick}
