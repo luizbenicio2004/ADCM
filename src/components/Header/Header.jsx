@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useConfig } from "../../context/ConfigContext";
 import { Link, useLocation } from "react-router-dom";
+import { Menu } from "lucide-react";
 import OptimizedImage from "../OptimizedImage";
 
 export default function Header() {
@@ -26,99 +27,89 @@ export default function Header() {
   }, [menuOpen]);
 
   const handleLinkClick = useCallback(() => setMenuOpen(false), []);
-
   const navHref = (id) => isHome ? `#${id}` : `/#${id}`;
 
   const items = ["sobre", "cultos", "ministerios", "eventos", "reciclagem", "avisos", "teologia"];
   const labelMap = {
-    sobre:       "Sobre",
-    cultos:      "Cultos",
-    ministerios: "Ministérios",
-    eventos:     "Eventos",
-    reciclagem:  "Reciclagem",
-    avisos:      "Avisos",
-    teologia:    "Teologia",
+    sobre: "Sobre", cultos: "Cultos", ministerios: "Ministérios",
+    eventos: "Eventos", reciclagem: "Reciclagem", avisos: "Avisos", teologia: "Teologia",
   };
 
   return (
-    <header
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-md"
-      style={!solidBg ? { background: "transparent", boxShadow: "none", backdropFilter: "none" } : {}}
-    >
-      <div className="max-w-[1100px] mx-auto px-6 h-[72px] flex items-center justify-between">
+    <>
+      <header
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        style={solidBg
+          ? { background: "rgba(255,255,255,0.95)", backdropFilter: "blur(12px)", boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }
+          : { background: "transparent" }
+        }
+      >
+        <div className="max-w-[1100px] mx-auto px-6 h-[72px] flex items-center justify-between">
 
-        <a href="/" className="flex items-center gap-3 no-underline" onClick={handleLinkClick}>
-          <OptimizedImage
-            src="/logo.webp"
-            alt="Logo ADCM Poá"
-            className="w-[60px] h-[60px] object-contain rounded-full"
-          />
-          <div>
-            <span
-              className="block text-lg font-bold leading-tight transition-colors duration-300"
-              style={{ fontFamily: "'Playfair Display', Georgia, serif", color: solidBg ? "#1e3a8a" : "white" }}
-            >
-              {loading ? "ADCM Poá" : config?.nome || "ADCM Poá"}
-            </span>
-            <span
-              className="block text-xs tracking-widest uppercase leading-none transition-colors duration-300"
-              style={{ color: solidBg ? "#6b7280" : "rgba(255,255,255,0.7)" }}
-            >
-              Assembleia de Deus
-            </span>
-          </div>
-        </a>
-
-        {/* Nav desktop */}
-        <nav className="hidden md:flex items-center gap-5" aria-label="Navegação principal">
-          {items.map((item) => (
-            <a
-              key={item}
-              href={navHref(item)}
-              onClick={handleLinkClick}
-              className="relative text-sm font-semibold pb-[3px] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-900 after:rounded-full after:transition-all after:duration-300 hover:after:w-full transition-colors duration-300"
-              style={{ color: solidBg ? "#1f2937" : "rgba(255,255,255,0.9)" }}
-            >
-              {labelMap[item]}
-            </a>
-          ))}
-          <a
-            href={navHref("localizacao")}
-            onClick={handleLinkClick}
-            className="text-sm font-bold text-white bg-red-600 px-4 py-2 rounded-sm hover:bg-red-700 hover:-translate-y-px transition-all duration-300"
-          >
-            Venha nos Visitar
+          <a href="/" className="flex items-center gap-3 no-underline" onClick={handleLinkClick}>
+            <OptimizedImage src="/logo.webp" alt="Logo ADCM Poá" className="w-[60px] h-[60px] object-contain rounded-full" />
+            <div>
+              <span
+                className="block text-lg font-bold leading-tight transition-colors duration-300"
+                style={{ fontFamily: "'Playfair Display', Georgia, serif", color: solidBg ? "#1e3a8a" : "white" }}
+              >
+                {loading ? "ADCM Poá" : config?.nome || "ADCM Poá"}
+              </span>
+              <span
+                className="block text-xs tracking-widest uppercase leading-none transition-colors duration-300"
+                style={{ color: solidBg ? "#6b7280" : "rgba(255,255,255,0.7)" }}
+              >
+                Assembleia de Deus
+              </span>
+            </div>
           </a>
-          <Link
-            to="/admin/login"
-            onClick={handleLinkClick}
-            title="Área do Administrador"
-            className="text-sm font-semibold px-3 py-2 rounded-md border transition-all duration-300"
-            style={{
-              color: solidBg ? "#6b7280" : "rgba(255,255,255,0.7)",
-              borderColor: solidBg ? "#e5e7eb" : "rgba(255,255,255,0.3)",
-            }}
-          >
-            ⚙️ Admin
-          </Link>
-        </nav>
 
-        {/* Hamburguer */}
-        <button
-          className="flex md:hidden w-10 h-10 items-center justify-center rounded-sm transition-colors duration-300"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Abrir menu"
-          aria-expanded={menuOpen}
-        >
-          <span
-            className="relative block w-[22px] h-[2px] rounded-full before:content-[''] before:absolute before:left-0 before:-top-[7px] before:w-full before:h-[2px] before:rounded-full after:content-[''] after:absolute after:left-0 after:top-[7px] after:w-full after:h-[2px] after:rounded-full transition-colors duration-300"
-            style={{
-              backgroundColor: "#1f2937",
-            }}
-            aria-hidden="true"
-          />
-        </button>
-      </div>
+          {/* Nav desktop */}
+          <nav className="hidden md:flex items-center gap-5" aria-label="Navegação principal">
+            {items.map((item) => (
+              <a
+                key={item}
+                href={navHref(item)}
+                onClick={handleLinkClick}
+                className="relative text-sm font-semibold pb-[3px] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-900 after:rounded-full after:transition-all after:duration-300 hover:after:w-full transition-colors duration-300"
+                style={{ color: solidBg ? "#1f2937" : "rgba(255,255,255,0.9)" }}
+              >
+                {labelMap[item]}
+              </a>
+            ))}
+            <a
+              href={navHref("localizacao")}
+              onClick={handleLinkClick}
+              className="text-sm font-bold text-white bg-red-600 px-4 py-2 rounded-sm hover:bg-red-700 hover:-translate-y-px transition-all duration-300"
+            >
+              Venha nos Visitar
+            </a>
+            <Link
+              to="/admin/login"
+              onClick={handleLinkClick}
+              title="Área do Administrador"
+              className="text-sm font-semibold px-3 py-2 rounded-md border transition-all duration-300"
+              style={{
+                color: solidBg ? "#6b7280" : "rgba(255,255,255,0.7)",
+                borderColor: solidBg ? "#e5e7eb" : "rgba(255,255,255,0.3)",
+              }}
+            >
+              ⚙️ Admin
+            </Link>
+          </nav>
+
+          {/* Hamburguer */}
+          <button
+            className="flex md:hidden w-10 h-10 items-center justify-center rounded-lg transition-colors duration-300"
+            style={{ color: solidBg ? "#1e3a8a" : "white" }}
+            onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menu"
+            aria-expanded={menuOpen}
+          >
+            <Menu size={26} />
+          </button>
+        </div>
+      </header>
 
       {/* Overlay mobile */}
       {menuOpen && (
@@ -128,17 +119,17 @@ export default function Header() {
         />
       )}
 
-      {/* Menu mobile */}
+      {/* Menu mobile drawer */}
       <div
         className={[
           "fixed top-0 right-0 bottom-0 z-[52] bg-white flex flex-col p-6",
-          "w-[min(320px,85vw)] transition-transform duration-[350ms]",
+          "w-[min(320px,85vw)] transition-transform duration-[350ms] shadow-2xl",
           menuOpen ? "translate-x-0" : "translate-x-full",
         ].join(" ")}
       >
         <div className="flex items-center justify-between mb-8 pb-6 border-b">
           <a href="/" className="flex items-center gap-3" onClick={handleLinkClick}>
-            <OptimizedImage src="/logo.webp" alt="Logo" className="w-[48px] h-[48px]" />
+            <OptimizedImage src="/logo.webp" alt="Logo" className="w-[48px] h-[48px] rounded-full" />
             <span className="font-bold text-blue-900">{config?.nome || "ADCM Poá"}</span>
           </a>
           <button
@@ -180,6 +171,6 @@ export default function Header() {
           </Link>
         </div>
       </div>
-    </header>
+    </>
   );
 }
