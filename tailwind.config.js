@@ -5,6 +5,17 @@ export default {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
 
+  safelist: [
+    "md:bg-transparent",
+    "md:shadow-none",
+    "md:backdrop-blur-none",
+    "md:text-white",
+    "md:text-white/70",
+    "md:bg-white",
+    "md:before:bg-white",
+    "md:after:bg-white",
+  ],
+
   theme: {
     extend: {
       // 🎨 CORES DO DESIGN SYSTEM
@@ -16,7 +27,6 @@ export default {
         accent: "#fbbf24",
         "bg-alt": "#f9fafb",
         "bg-dark": "#0d1b4b",
-        // ✅ CORRIGIDO: alias necessário para a classe bg-bg-dark usada em Teologia.jsx
         "bg-bg-dark": "#0d1b4b",
         "text-muted": "#6b7280",
         "text-light": "#9ca3af",
