@@ -42,12 +42,8 @@ export default function Header() {
 
   return (
     <header
-      className={[
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        solidBg
-          ? "bg-white/95 backdrop-blur-md shadow-md"
-          : "bg-white/95 backdrop-blur-md shadow-md md:bg-transparent md:shadow-none md:backdrop-blur-none",
-      ].join(" ")}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-md"
+      style={!solidBg ? { background: "transparent", boxShadow: "none", backdropFilter: "none" } : {}}
     >
       <div className="max-w-[1100px] mx-auto px-6 h-[72px] flex items-center justify-between">
 
@@ -59,12 +55,15 @@ export default function Header() {
           />
           <div>
             <span
-              className={`block text-lg font-bold leading-tight transition-colors duration-300 text-blue-900 ${!solidBg ? "md:text-white" : ""}`}
-              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+              className="block text-lg font-bold leading-tight transition-colors duration-300"
+              style={{ fontFamily: "'Playfair Display', Georgia, serif", color: solidBg ? "#1e3a8a" : "white" }}
             >
               {loading ? "ADCM Poá" : config?.nome || "ADCM Poá"}
             </span>
-            <span className={`block text-xs tracking-widest uppercase leading-none transition-colors duration-300 text-gray-500 ${!solidBg ? "md:text-white/70" : ""}`}>
+            <span
+              className="block text-xs tracking-widest uppercase leading-none transition-colors duration-300"
+              style={{ color: solidBg ? "#6b7280" : "rgba(255,255,255,0.7)" }}
+            >
               Assembleia de Deus
             </span>
           </div>
@@ -77,18 +76,13 @@ export default function Header() {
               key={item}
               href={navHref(item)}
               onClick={handleLinkClick}
-              className={`relative text-sm font-semibold pb-[3px]
-                after:content-[''] after:absolute after:left-0 after:bottom-0
-                after:w-0 after:h-[2px] after:bg-blue-900 after:rounded-full
-                after:transition-all after:duration-300 hover:after:w-full
-                transition-colors duration-300
-                ${solidBg ? "text-gray-800 hover:text-blue-900" : "text-white/90 hover:text-white"}`}
+              className="relative text-sm font-semibold pb-[3px] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-900 after:rounded-full after:transition-all after:duration-300 hover:after:w-full transition-colors duration-300"
+              style={{ color: solidBg ? "#1f2937" : "rgba(255,255,255,0.9)" }}
             >
               {labelMap[item]}
             </a>
           ))}
           <a
-
             href={navHref("localizacao")}
             onClick={handleLinkClick}
             className="text-sm font-bold text-white bg-red-600 px-4 py-2 rounded-sm hover:bg-red-700 hover:-translate-y-px transition-all duration-300"
@@ -99,10 +93,11 @@ export default function Header() {
             to="/admin/login"
             onClick={handleLinkClick}
             title="Área do Administrador"
-            className={`text-sm font-semibold px-3 py-2 rounded-md border transition-all duration-300
-              ${solidBg
-                ? "text-gray-500 border-gray-200 hover:text-blue-900 hover:border-blue-900"
-                : "text-white/70 border-white/30 hover:text-white hover:border-white"}`}
+            className="text-sm font-semibold px-3 py-2 rounded-md border transition-all duration-300"
+            style={{
+              color: solidBg ? "#6b7280" : "rgba(255,255,255,0.7)",
+              borderColor: solidBg ? "#e5e7eb" : "rgba(255,255,255,0.3)",
+            }}
           >
             ⚙️ Admin
           </Link>
@@ -116,11 +111,10 @@ export default function Header() {
           aria-expanded={menuOpen}
         >
           <span
-            className={`relative block w-[22px] h-[2px] rounded-full
-              before:content-[''] before:absolute before:left-0 before:-top-[7px] before:w-full before:h-[2px] before:rounded-full
-              after:content-[''] after:absolute after:left-0 after:top-[7px] after:w-full after:h-[2px] after:rounded-full
-              transition-colors duration-300
-              bg-gray-800 before:bg-gray-800 after:bg-gray-800 ${!solidBg ? "md:bg-white md:before:bg-white md:after:bg-white" : ""}`}
+            className="relative block w-[22px] h-[2px] rounded-full before:content-[''] before:absolute before:left-0 before:-top-[7px] before:w-full before:h-[2px] before:rounded-full after:content-[''] after:absolute after:left-0 after:top-[7px] after:w-full after:h-[2px] after:rounded-full transition-colors duration-300"
+            style={{
+              backgroundColor: "#1f2937",
+            }}
             aria-hidden="true"
           />
         </button>
@@ -158,7 +152,7 @@ export default function Header() {
 
         <nav className="flex flex-col gap-2 flex-1 overflow-y-auto">
           {items.map((item) => (
-            <a  
+            <a
               key={item}
               href={navHref(item)}
               onClick={handleLinkClick}
