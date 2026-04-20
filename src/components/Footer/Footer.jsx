@@ -1,4 +1,5 @@
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, LayoutDashboard } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Ícones de marcas customizados (lucide-react v1+ removeu ícones de marcas)
 const FacebookIcon = ({ size = 14 }) => (
@@ -24,12 +25,13 @@ const YoutubeIcon = ({ size = 14 }) => (
 
 import { CULTOS } from "../../data/igreja";
 import { useConfig } from "../../context/ConfigContext";
+import { useCollection } from "../../hooks/useCollection";
 import { sortCultos } from "../../utils/sortCultos";
 import OptimizedImage from "../OptimizedImage";
 
 export default function Footer() {
   const { loading, config } = useConfig();
-  const { data: cultosFirestore = [], loading: cultosLoading } = [];
+  const { data: cultosFirestore = [], loading: cultosLoading } = useCollection("cultos");
   const ano = new Date().getFullYear();
 
   const cultos = cultosFirestore.length > 0 ? cultosFirestore : cultosLoading ? [] : CULTOS;
@@ -121,7 +123,6 @@ export default function Footer() {
                   { href: "/#sobre", label: "Quem Somos" },
                   { href: "/#cultos", label: "Cultos" },
                   { href: "/#ministerios", label: "Ministérios" },
-                  //{ href: "/#teologia", label: "Teologia" },
                   { href: "/#eventos", label: "Eventos" },
                   { href: "/#localizacao", label: "Localização" },
                 ].map(({ href, label }) => (
@@ -179,7 +180,31 @@ export default function Footer() {
       {/* Rodapé inferior */}
       <div className="py-6">
         <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 text-center md:text-left">
-          <p>© {ano} {config?.nome || "ADCM Poá"} · Todos os direitos reservados</p>
+          <div className="flex items-center gap-2">
+            <p
+              onClick={() => {
+                if (!window._footerClicks) window._footerClicks = 0;
+                window._footerClicks += 1;
+                clearTimeout(window._footerTimer);
+                window._footerTimer = setTimeout(() => { window._footerClicks = 0; }, 1500);
+                if (window._footerClicks >= 3) {
+                  window._footerClicks = 0;
+                  window.dispatchEvent(new Event("adcm:secret-footer"));
+                }
+              }}
+              className="cursor-default select-none"
+            >
+              © {ano} {config?.nome || "ADCM Poá"} · Todos os direitos reservados
+            </p>
+            {/* Ícone admin discreto no footer */}
+            <Link
+              to="/admin/login"
+              className="opacity-20 hover:opacity-50 transition-opacity"
+              title="Admin"
+            >
+              <LayoutDashboard size={12} />
+            </Link>
+          </div>
           <p className="italic">{versiculoRodape}</p>
         </div>
       </div>

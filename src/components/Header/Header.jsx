@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useConfig } from "../../context/ConfigContext";
 import { useAuth } from "../../context/AuthContext";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, LayoutDashboard } from "lucide-react";
 import OptimizedImage from "../OptimizedImage";
 
@@ -11,8 +11,48 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isHome = location.pathname === "/";
   const solidBg = !isHome || scrolled;
+
+  // ── Contadores para acesso secreto ──────────────────────────────
+  const logoClickCount = useRef(0);
+  const logoClickTimer = useRef(null);
+
+  // Opção 3 — 3 cliques no logo
+  const handleLogoClick = useCallback((e) => {
+    logoClickCount.current += 1;
+    clearTimeout(logoClickTimer.current);
+    logoClickTimer.current = setTimeout(() => {
+      logoClickCount.current = 0;
+    }, 1500);
+    if (logoClickCount.current >= 3) {
+      logoClickCount.current = 0;
+      clearTimeout(logoClickTimer.current);
+      e.preventDefault();
+      navigate("/admin/login");
+    }
+  }, [navigate]);
+
+  // Opção 1 — clique secreto no footer (Footer.jsx dispara o evento)
+  useEffect(() => {
+    const handler = () => navigate("/admin/login");
+    window.addEventListener("adcm:secret-footer", handler);
+    return () => window.removeEventListener("adcm:secret-footer", handler);
+  }, [navigate]);
+
+  // Opção 2 — atalho de teclado Ctrl + Shift + A
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "A") {
+        e.preventDefault();
+        navigate("/admin/login");
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [navigate]);
+  // ────────────────────────────────────────────────────────────────
 
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 20);
@@ -31,7 +71,7 @@ export default function Header() {
   const handleLinkClick = useCallback(() => setMenuOpen(false), []);
   const navHref = (id) => (isHome ? `#${id}` : `/#${id}`);
 
-  const items = ["sobre", "cultos", "ministerios", "eventos", "reciclagem", "avisos",];
+  const items = ["sobre", "cultos", "ministerios", "eventos", "reciclagem", "avisos"];
   const labelMap = {
     sobre: "Sobre",
     cultos: "Cultos",
@@ -39,7 +79,6 @@ export default function Header() {
     eventos: "Eventos",
     reciclagem: "Reciclagem",
     avisos: "Avisos",
-    //teologia: "Teologia",
   };
 
   return (
@@ -57,8 +96,13 @@ export default function Header() {
         }
       >
         <div className="max-w-[1100px] mx-auto px-6 h-[72px] flex items-center justify-between">
-          {/* Logo */}
-          <a href="/" className="flex items-center gap-3 no-underline" onClick={handleLinkClick}>
+
+          {/* Logo — 3 cliques = acesso admin */}
+          <a
+            href="/"
+            className="flex items-center gap-3 no-underline"
+            onClick={(e) => { handleLinkClick(); handleLogoClick(e); }}
+          >
             <OptimizedImage
               src="/logo.webp"
               alt="Logo ADCM Poá"
@@ -103,6 +147,18 @@ export default function Header() {
             >
               Venha nos Visitar
             </a>
+
+            {/* Botão admin discreto — visível para todos */}
+            <Link
+              to="/admin/login"
+              className="flex items-center justify-center w-8 h-8 rounded-lg opacity-30 hover:opacity-70 transition-all duration-300"
+              style={{ color: solidBg ? "#1e3a8a" : "white" }}
+              title="Admin"
+            >
+              <LayoutDashboard size={16} />
+            </Link>
+
+            {/* Botão admin completo — só quando logado */}
             {user && (
               <Link
                 to="/admin/dashboard"
@@ -185,14 +241,25 @@ export default function Header() {
           >
             Venha nos Visitar
           </a>
+
+          {/* Botão admin discreto no mobile */}
+          <Link
+            to="/admin/login"
+            onClick={handleLinkClick}
+            className="mt-2 text-sm text-gray-400 px-4 py-3 rounded-md hover:bg-gray-50 transition-colors min-h-[44px] flex items-center gap-2 opacity-40 hover:opacity-70"
+          >
+            <LayoutDashboard size={14} />
+            Admin
+          </Link>
+
           {user && (
             <Link
               to="/admin/dashboard"
               onClick={handleLinkClick}
-              className="mt-2 text-base font-semibold text-blue-900 border border-blue-900/30 px-4 py-3 rounded-md text-center hover:bg-blue-50 transition-colors min-h-[44px] flex items-center justify-center gap-2"
+              className="text-base font-semibold text-blue-900 border border-blue-900/30 px-4 py-3 rounded-md text-center hover:bg-blue-50 transition-colors min-h-[44px] flex items-center justify-center gap-2"
             >
               <LayoutDashboard size={16} />
-              Admin
+              Painel Admin
             </Link>
           )}
         </nav>
