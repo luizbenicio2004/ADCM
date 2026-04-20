@@ -11,11 +11,12 @@ import "./styles/animations.css";
 // ================= LAZY LOADING =================
 
 // Públicas
-const Home        = lazy(() => import("./pages/Home"));
-const SobrePage   = lazy(() => import("./pages/Sobre"));
-const Ministerio  = lazy(() => import("./pages/Ministerio"));
-const EventosPage = lazy(() => import("./pages/Eventos"));
-const EventoPage  = lazy(() => import("./pages/Evento"));
+const Home           = lazy(() => import("./pages/Home"));
+const SobrePage      = lazy(() => import("./pages/Sobre"));
+const Ministerio     = lazy(() => import("./pages/Ministerio"));
+const EventosPage    = lazy(() => import("./pages/Eventos"));
+const EventoPage     = lazy(() => import("./pages/Evento"));
+const ReciclagemPage = lazy(() => import("./pages/Reciclagem"));
 
 // Admin
 const AdminConfig      = lazy(() => import("./pages/AdminConfig"));
@@ -59,7 +60,7 @@ function NotFound() {
           href="/"
           className="inline-flex items-center gap-2 bg-blue-900 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-800 transition"
         >
-          ← Voltar para o início
+          &larr; Voltar para o início
         </a>
       </div>
     </div>
@@ -82,6 +83,7 @@ export default function App() {
               <Route path="/ministerio/:id"  element={<Ministerio />} />
               <Route path="/eventos"         element={<EventosPage />} />
               <Route path="/evento/:id"      element={<EventoPage />} />
+              <Route path="/reciclagem"      element={<ReciclagemPage />} />
 
               {/* ================= ADMIN ================= */}
               <Route path="/admin"           element={<Navigate to="/admin/login" replace />} />

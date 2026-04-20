@@ -33,7 +33,7 @@ export default function Home() {
         <Eventos />
         <Reciclagem />
         <Avisos />
-        <Teologia />
+        {/* <Teologia /> */}
         <Localizacao />
       </main>
       <Footer />

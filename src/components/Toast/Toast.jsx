@@ -1,4 +1,5 @@
-// src/components/Toast/Toast.jsx
+// leitores de tela anunciem os feedbacks ao usuário.
+
 import { CheckCircle, XCircle, AlertCircle, X } from "lucide-react";
 
 const STYLES = {
@@ -20,12 +21,16 @@ export function ToastItem({ toast, onRemove }) {
   const style = STYLES[toast.type] ?? STYLES.success;
   return (
     <div
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
       className={`flex items-center gap-3 border rounded-xl px-4 py-3 shadow-lg text-sm font-medium animate-slide-in ${style.container}`}
     >
       {style.icon}
       <span className="flex-1">{toast.message}</span>
       <button
         onClick={() => onRemove(toast.id)}
+        aria-label="Fechar notificação"
         className="opacity-50 hover:opacity-100 transition ml-1"
       >
         <X size={14} />
@@ -37,7 +42,10 @@ export function ToastItem({ toast, onRemove }) {
 export function ToastContainer({ toasts, onRemove }) {
   if (!toasts.length) return null;
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 max-w-sm w-full">
+    <div
+      aria-label="Notificações"
+      className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 max-w-sm w-full"
+    >
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} onRemove={onRemove} />
       ))}

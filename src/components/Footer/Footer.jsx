@@ -1,36 +1,55 @@
-import { FaInstagram, FaFacebook, FaWhatsapp, FaYoutube } from "react-icons/fa";
+import { MessageCircle } from "lucide-react";
+
+// Ícones de marcas customizados (lucide-react v1+ removeu ícones de marcas)
+const FacebookIcon = ({ size = 14 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
+const InstagramIcon = ({ size = 14 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const YoutubeIcon = ({ size = 14 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.96-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
+    <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="white" />
+  </svg>
+);
+
 import { CULTOS } from "../../data/igreja";
 import { useConfig } from "../../context/ConfigContext";
-import { useCollection } from "../../hooks/useCollection";
-import { Link } from "react-router-dom";
 import { sortCultos } from "../../utils/sortCultos";
 import OptimizedImage from "../OptimizedImage";
 
 export default function Footer() {
   const { loading, config } = useConfig();
-  const { data: cultosFirestore = [], loading: cultosLoading } = useCollection("cultos");
+  const { data: cultosFirestore = [], loading: cultosLoading } = [];
   const ano = new Date().getFullYear();
 
-  const cultos = cultosFirestore.length > 0 ? cultosFirestore : (cultosLoading ? [] : CULTOS);
+  const cultos = cultosFirestore.length > 0 ? cultosFirestore : cultosLoading ? [] : CULTOS;
   const cultosOrdenados = sortCultos(cultos);
 
   const instagram = config?.instagram;
-  const facebook  = config?.facebook;
-  const youtube   = config?.youtube;
-  const whatsapp  = config?.whatsapp;
+  const facebook = config?.facebook;
+  const youtube = config?.youtube;
+  const whatsapp = config?.whatsapp;
 
-  // Versículo: prioriza o cadastrado no admin, fallback clássico
-  const versiculoRodape = config?.sobre?.versiculoRodape
-    || "O Senhor é o meu pastor e nada me faltará. — Salmos 23:1";
+  const versiculoRodape =
+    config?.sobre?.versiculoRodape || "O Senhor é o meu pastor e nada me faltará. — Salmos 23:1";
 
   return (
     <footer className="bg-gray-950 text-gray-400">
-
       <div className="py-16 border-b border-white/10">
         <div className="max-w-[1200px] mx-auto px-6">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
 
-            {/* COLUNA PRINCIPAL */}
+            {/* Coluna principal */}
             <div className="lg:col-span-1">
               <div className="flex items-center gap-3 mb-4">
                 <OptimizedImage
@@ -45,19 +64,21 @@ export default function Footer() {
                   <span className="block text-white font-bold text-lg leading-tight">
                     {loading ? "ADCM Poá" : config?.nome || "ADCM Poá"}
                   </span>
-                  <span className="text-xs uppercase tracking-widest text-gray-400">Assembleia de Deus</span>
+                  <span className="text-xs uppercase tracking-widest text-gray-400">
+                    Assembleia de Deus
+                  </span>
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-6 max-w-[280px]">
-                Uma comunidade comprometida com a Palavra de Deus,
-                comunhão e amor ao próximo. Venha fazer parte desta família.
+                Uma comunidade comprometida com a Palavra de Deus, comunhão e amor ao próximo.
+                Venha fazer parte desta família.
               </p>
               <div className="flex flex-col gap-2">
                 {instagram && (
                   <a href={instagram} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 hover:text-white transition">
                     <span className="w-7 h-7 flex items-center justify-center rounded bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white">
-                      <FaInstagram size={14} />
+                      <InstagramIcon size={14} />
                     </span>
                     Instagram
                   </a>
@@ -66,7 +87,7 @@ export default function Footer() {
                   <a href={facebook} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 hover:text-white transition">
                     <span className="w-7 h-7 flex items-center justify-center rounded bg-blue-600 text-white">
-                      <FaFacebook size={14} />
+                      <FacebookIcon size={14} />
                     </span>
                     Facebook
                   </a>
@@ -75,7 +96,7 @@ export default function Footer() {
                   <a href={youtube} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 hover:text-white transition">
                     <span className="w-7 h-7 flex items-center justify-center rounded bg-red-600 text-white">
-                      <FaYoutube size={14} />
+                      <YoutubeIcon size={14} />
                     </span>
                     YouTube
                   </a>
@@ -84,7 +105,7 @@ export default function Footer() {
                   <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 hover:text-white transition">
                     <span className="w-7 h-7 flex items-center justify-center rounded bg-green-500 text-white">
-                      <FaWhatsapp size={14} />
+                      <MessageCircle size={14} />
                     </span>
                     WhatsApp
                   </a>
@@ -92,7 +113,7 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* NAVEGAÇÃO */}
+            {/* Navegação */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Navegação</h3>
               <ul className="flex flex-col gap-2">
@@ -100,7 +121,7 @@ export default function Footer() {
                   { href: "/#sobre", label: "Quem Somos" },
                   { href: "/#cultos", label: "Cultos" },
                   { href: "/#ministerios", label: "Ministérios" },
-                  { href: "/#teologia", label: "Teologia" },
+                  //{ href: "/#teologia", label: "Teologia" },
                   { href: "/#eventos", label: "Eventos" },
                   { href: "/#localizacao", label: "Localização" },
                 ].map(({ href, label }) => (
@@ -114,12 +135,13 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* CULTOS */}
+            {/* Cultos */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Cultos</h3>
               <ul className="flex flex-col gap-2">
                 {cultosOrdenados.map((culto) => (
-                  <li key={culto.id ?? culto.nome} className="flex justify-between border-b border-white/10 pb-2 text-sm">
+                  <li key={culto.id ?? culto.nome}
+                    className="flex justify-between border-b border-white/10 pb-2 text-sm">
                     <span>{culto.dia}{culto.obs ? " *" : ""}</span>
                     <span className="font-bold text-blue-400">{culto.horario}</span>
                   </li>
@@ -127,13 +149,14 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* ENDEREÇO */}
+            {/* Endereço */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Endereço</h3>
               <address className="text-sm not-italic leading-relaxed mb-4">
                 {config?.endereco?.rua ? (
                   <>
-                    {config.endereco.rua}{config.endereco.bairro ? `, ${config.endereco.bairro}` : ""} <br />
+                    {config.endereco.rua}
+                    {config.endereco.bairro ? `, ${config.endereco.bairro}` : ""} <br />
                     {config.endereco.cidade} - {config.endereco.estado} <br />
                     {config.endereco.cep && <>CEP: {config.endereco.cep}</>}
                   </>
@@ -144,12 +167,11 @@ export default function Footer() {
               {whatsapp && (
                 <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 text-green-400 font-bold hover:text-green-300 transition">
-                  <FaWhatsapp size={16} />
+                  <MessageCircle size={16} />
                   Fale pelo WhatsApp
                 </a>
               )}
             </div>
-
           </div>
         </div>
       </div>
@@ -159,16 +181,8 @@ export default function Footer() {
         <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 text-center md:text-left">
           <p>© {ano} {config?.nome || "ADCM Poá"} · Todos os direitos reservados</p>
           <p className="italic">{versiculoRodape}</p>
-          <Link
-            to="/admin/login"
-            className="flex items-center gap-1 text-gray-600 hover:text-white transition-colors duration-300 text-xs border border-gray-700 hover:border-gray-400 px-3 py-1 rounded"
-            title="Área do administrador"
-          >
-            ⚙️ Painel Admin
-          </Link>
         </div>
       </div>
-
     </footer>
   );
 }

@@ -1,8 +1,8 @@
 // src/components/Reciclagem/Reciclagem.jsx
 import { useDoc } from "../../hooks/useDoc";
-import { Recycle, Target } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Recycle } from "lucide-react";
 
-// Fallback estático para quando o documento config/reciclagem não existir no Firestore
 const RECICLAGEM_FALLBACK = {
   descricao: "Contribua com o meio ambiente e com o crescimento da nossa igreja. Trazendo materiais recicláveis, você ajuda a custear o terreno para nossa nova sede.",
   materiais: ["Papel e papelão", "Plástico", "Metal e latas", "Vidro", "Eletrônicos"],
@@ -13,9 +13,8 @@ const RECICLAGEM_FALLBACK = {
 };
 
 export default function Reciclagem() {
-  // ✅ Removido useReveal da <section> — evita o bug de opacity-0 no container inteiro
-  // quando dados assíncronos chegam depois do IntersectionObserver já ter rodado.
   const { data, loading } = useDoc("config", "reciclagem");
+  const navigate = useNavigate();
 
   if (loading) return (
     <section className="py-20 px-6 bg-green-50">
@@ -26,7 +25,6 @@ export default function Reciclagem() {
           <div className="bg-green-200 rounded-2xl h-48" />
           <div className="flex flex-col gap-4">
             <div className="bg-gray-200 rounded-xl h-32" />
-            <div className="bg-gray-200 rounded-xl h-24" />
           </div>
         </div>
       </div>
@@ -34,11 +32,15 @@ export default function Reciclagem() {
   );
 
   const conteudo = data ?? RECICLAGEM_FALLBACK;
-  const { descricao, materiais = [], metaReais = 0, arrecadadoReais = 0, versiculo, referenciaVersiculo } = conteudo;
-  const porcentagem = metaReais > 0 ? Math.min(100, Math.round((arrecadadoReais / metaReais) * 100)) : 0;
+  const { descricao, materiais = [], versiculo, referenciaVersiculo } = conteudo;
 
   return (
-    <section id="reciclagem" className="py-20 px-6 bg-green-50">
+    <section
+      id="reciclagem"
+      className="py-20 px-6 bg-green-50 cursor-pointer group"
+      onClick={() => navigate("/reciclagem")}
+      title="Ver mais informações sobre o Projeto Reciclagem"
+    >
       <div className="max-w-[1000px] mx-auto">
         <div className="text-center max-w-[600px] mx-auto mb-12">
           <div className="w-12 h-[2px] bg-green-700 mx-auto mb-4" />
@@ -47,6 +49,9 @@ export default function Reciclagem() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Projeto Reciclagem</h2>
           </div>
           {descricao && <p className="text-gray-600">{descricao}</p>}
+          <p className="mt-4 text-sm text-green-700 font-semibold group-hover:underline">
+            Saiba mais →
+          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 items-start">
@@ -74,29 +79,6 @@ export default function Reciclagem() {
                     </li>
                   ))}
                 </ul>
-              </div>
-            )}
-
-            {metaReais > 0 && (
-              <div className="bg-white rounded-xl border border-green-200 p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <Target size={18} className="text-green-700" />
-                  <h3 className="font-bold text-gray-900 text-sm uppercase tracking-wide">Meta do Terreno</h3>
-                </div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-500">Arrecadado</span>
-                  <span className="font-bold text-green-700">{porcentagem}%</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
-                  <div
-                    className="bg-green-600 h-4 rounded-full transition-all duration-1000"
-                    style={{ width: `${porcentagem}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-gray-500 mt-2">
-                  <span>R$ {arrecadadoReais.toLocaleString("pt-BR")}</span>
-                  <span>Meta: R$ {metaReais.toLocaleString("pt-BR")}</span>
-                </div>
               </div>
             )}
           </div>

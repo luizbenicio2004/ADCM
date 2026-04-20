@@ -15,7 +15,6 @@ function formatarData(data) {
 }
 
 export default function Eventos() {
-  // ✅ CORRIGIDO: callback ref — observer registrado após dados chegarem
   
   const { data: todos = [], loading } = useCollection("eventos");
 

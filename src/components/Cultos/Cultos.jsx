@@ -13,7 +13,6 @@ function getIcone(nome = "") {
 
 export default function Cultos() {
   const { data: cultos = [], loading, error } = useCollection("cultos");
-  // ✅ CORRIGIDO: useRevealStagger agora usa callback ref — funciona mesmo
   
 
   // Usa dados estáticos somente se o Firestore terminou de carregar e não retornou nada

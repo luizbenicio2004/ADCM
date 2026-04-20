@@ -41,7 +41,6 @@ const DEFAULT_TIPO = TIPO_CONFIG.aviso;
 
 export default function Avisos() {
   const { data: todosAvisos = [], loading } = useCollection("avisos");
-  // ✅ CORRIGIDO: callback ref — observer registrado após dados chegarem
   
 
   const avisos = todosAvisos.filter((a) => a.ativo !== false);
