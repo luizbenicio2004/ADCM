@@ -115,28 +115,34 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Navegação */}
+            {/* Navegação — dinâmica conforme seções ativas */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Navegação</h3>
               <ul className="flex flex-col gap-2">
                 {[
-                  { href: "/#sobre", label: "Quem Somos" },
-                  { href: "/#cultos", label: "Cultos" },
-                  { href: "/#ministerios", label: "Ministérios" },
-                  { href: "/#eventos", label: "Eventos" },
-                  { href: "/#localizacao", label: "Localização" },
-                ].map(({ href, label }) => (
-                  <li key={href}>
-                    <a href={href} className="flex items-center gap-2 text-sm hover:text-white hover:gap-3 transition-all">
-                      <span className="text-blue-400 text-xs">→</span>
-                      {label}
-                    </a>
-                  </li>
-                ))}
+                  { href: "/#sobre",       label: "Quem Somos",   secao: "secaoSobre" },
+                  { href: "/#cultos",      label: "Cultos",       secao: "secaoCultos" },
+                  { href: "/#ministerios", label: "Ministérios", secao: "secaoMinisterios" },
+                  { href: "/#eventos",     label: "Eventos",      secao: "secaoEventos" },
+                  { href: "/#reciclagem",  label: "Reciclagem",   secao: "secaoReciclagem" },
+                  { href: "/#avisos",      label: "Avisos",       secao: "secaoAvisos" },
+                  { href: "/#oracao",      label: "Oração",       secao: "secaoOracao" },
+                  { href: "/#localizacao", label: "Localização",  secao: "secaoLocalizacao" },
+                ]
+                  .filter(({ secao }) => !config || config[secao] !== false)
+                  .map(({ href, label }) => (
+                    <li key={href}>
+                      <a href={href} className="flex items-center gap-2 text-sm hover:text-white hover:gap-3 transition-all">
+                        <span className="text-blue-400 text-xs">→</span>
+                        {label}
+                      </a>
+                    </li>
+                  ))}
               </ul>
             </div>
 
-            {/* Cultos */}
+            {/* Cultos — só exibe se a seção estiver ativa */}
+            {(!config || config.secaoCultos !== false) && (
             <div>
               <h3 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Cultos</h3>
               <ul className="flex flex-col gap-2">
@@ -149,6 +155,7 @@ export default function Footer() {
                 ))}
               </ul>
             </div>
+            )}
 
             {/* Endereço */}
             <div>

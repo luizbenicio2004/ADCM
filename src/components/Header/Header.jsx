@@ -71,15 +71,23 @@ export default function Header() {
   const handleLinkClick = useCallback(() => setMenuOpen(false), []);
   const navHref = (id) => (isHome ? `#${id}` : `/#${id}`);
 
-  const items = ["sobre", "cultos", "ministerios", "eventos", "reciclagem", "avisos"];
-  const labelMap = {
-    sobre: "Sobre",
-    cultos: "Cultos",
-    ministerios: "Ministérios",
-    eventos: "Eventos",
-    reciclagem: "Reciclagem",
-    avisos: "Avisos",
-  };
+  // Todos os itens de nav possíveis, em ordem
+  // pagina: rota dedicada quando existe; null = ancora #id na home
+  const TODOS_ITENS = [
+    { id: "sobre",       label: "Sobre",       secao: "secaoSobre",       pagina: "/sobre" },
+    { id: "cultos",      label: "Cultos",      secao: "secaoCultos",      pagina: null },
+    { id: "ministerios", label: "Ministérios", secao: "secaoMinisterios", pagina: null },
+    { id: "eventos",     label: "Eventos",     secao: "secaoEventos",     pagina: "/eventos" },
+    { id: "reciclagem",  label: "Reciclagem",  secao: "secaoReciclagem",  pagina: "/reciclagem" },
+    { id: "avisos",      label: "Avisos",      secao: "secaoAvisos",      pagina: null },
+  ];
+
+  // Filtra pela config — se config ainda não carregou, mostra todos
+  const items = TODOS_ITENS.filter(({ secao }) => !config || config[secao] !== false);
+  const labelMap = Object.fromEntries(items.map(({ id, label }) => [id, label]));
+
+  // Resolve o href de cada item: página dedicada ou ancora na home
+  const itemHref = ({ id, pagina }) => pagina ?? navHref(id);
 
   return (
     <>
@@ -130,15 +138,27 @@ export default function Header() {
           {/* Nav desktop */}
           <nav className="hidden md:flex items-center gap-5" aria-label="Navegação principal">
             {items.map((item) => (
-              <a
-                key={item}
-                href={navHref(item)}
-                onClick={handleLinkClick}
-                className="relative text-sm font-semibold pb-[3px] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-900 after:rounded-full after:transition-all after:duration-300 hover:after:w-full transition-colors duration-300"
-                style={{ color: solidBg ? "#1f2937" : "rgba(255,255,255,0.9)" }}
-              >
-                {labelMap[item]}
-              </a>
+              item.pagina ? (
+                <Link
+                  key={item.id}
+                  to={item.pagina}
+                  onClick={handleLinkClick}
+                  className="relative text-sm font-semibold pb-[3px] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-900 after:rounded-full after:transition-all after:duration-300 hover:after:w-full transition-colors duration-300"
+                  style={{ color: solidBg ? "#1f2937" : "rgba(255,255,255,0.9)" }}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <a
+                  key={item.id}
+                  href={navHref(item.id)}
+                  onClick={handleLinkClick}
+                  className="relative text-sm font-semibold pb-[3px] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-900 after:rounded-full after:transition-all after:duration-300 hover:after:w-full transition-colors duration-300"
+                  style={{ color: solidBg ? "#1f2937" : "rgba(255,255,255,0.9)" }}
+                >
+                  {item.label}
+                </a>
+              )
             ))}
             <a
               href={navHref("localizacao")}
@@ -148,15 +168,17 @@ export default function Header() {
               Venha nos Visitar
             </a>
 
-            {/* Botão admin discreto — visível para todos */}
-            <Link
-              to="/admin/login"
-              className="flex items-center justify-center w-8 h-8 rounded-lg opacity-30 hover:opacity-70 transition-all duration-300"
-              style={{ color: solidBg ? "#1e3a8a" : "white" }}
-              title="Admin"
-            >
-              <LayoutDashboard size={16} />
-            </Link>
+            {/* Ícone discreto — só quando deslogado */}
+            {!user && (
+              <Link
+                to="/admin/login"
+                className="flex items-center justify-center w-8 h-8 rounded-lg opacity-30 hover:opacity-70 transition-all duration-300"
+                style={{ color: solidBg ? "#1e3a8a" : "white" }}
+                title="Admin"
+              >
+                <LayoutDashboard size={16} />
+              </Link>
+            )}
 
             {/* Botão admin completo — só quando logado */}
             {user && (
@@ -225,14 +247,25 @@ export default function Header() {
 
         <nav className="flex flex-col gap-2 flex-1 overflow-y-auto">
           {items.map((item) => (
-            <a
-              key={item}
-              href={navHref(item)}
-              onClick={handleLinkClick}
-              className="text-lg font-semibold text-gray-800 px-4 py-3 rounded-md hover:bg-gray-50 hover:text-blue-900 transition-colors min-h-[44px] flex items-center"
-            >
-              {labelMap[item]}
-            </a>
+            item.pagina ? (
+              <Link
+                key={item.id}
+                to={item.pagina}
+                onClick={handleLinkClick}
+                className="text-lg font-semibold text-gray-800 px-4 py-3 rounded-md hover:bg-gray-50 hover:text-blue-900 transition-colors min-h-[44px] flex items-center"
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <a
+                key={item.id}
+                href={navHref(item.id)}
+                onClick={handleLinkClick}
+                className="text-lg font-semibold text-gray-800 px-4 py-3 rounded-md hover:bg-gray-50 hover:text-blue-900 transition-colors min-h-[44px] flex items-center"
+              >
+                {item.label}
+              </a>
+            )
           ))}
           <a
             href={navHref("localizacao")}
@@ -242,15 +275,17 @@ export default function Header() {
             Venha nos Visitar
           </a>
 
-          {/* Botão admin discreto no mobile */}
-          <Link
-            to="/admin/login"
-            onClick={handleLinkClick}
-            className="mt-2 text-sm text-gray-400 px-4 py-3 rounded-md hover:bg-gray-50 transition-colors min-h-[44px] flex items-center gap-2 opacity-40 hover:opacity-70"
-          >
-            <LayoutDashboard size={14} />
-            Admin
-          </Link>
+          {/* Botão admin discreto no mobile — só quando deslogado */}
+          {!user && (
+            <Link
+              to="/admin/login"
+              onClick={handleLinkClick}
+              className="mt-2 text-sm text-gray-400 px-4 py-3 rounded-md hover:bg-gray-50 transition-colors min-h-[44px] flex items-center gap-2 opacity-40 hover:opacity-70"
+            >
+              <LayoutDashboard size={14} />
+              Admin
+            </Link>
+          )}
 
           {user && (
             <Link
