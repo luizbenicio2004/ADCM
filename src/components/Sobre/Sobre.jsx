@@ -1,4 +1,5 @@
 import { Target, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useCounter } from "../../hooks/useCounter";
 import { useConfig } from "../../context/ConfigContext";
 
@@ -66,9 +67,17 @@ export default function Sobre() {
             </div>
           )}
 
-          <a href="#cultos" className="inline-flex items-center gap-2 text-sm font-bold text-blue-900 hover:gap-3 transition-all">
-            Conheça nossos Cultos →
-          </a>
+          <div className="flex flex-wrap items-center gap-4">
+            <a href="#cultos" className="inline-flex items-center gap-2 text-sm font-bold text-blue-900 hover:gap-3 transition-all">
+              Conheça nossos Cultos →
+            </a>
+            <Link
+              to="/sobre"
+              className="inline-flex items-center gap-2 text-sm font-bold text-white bg-blue-900 px-4 py-2 rounded-lg hover:bg-blue-800 hover:-translate-y-px transition-all"
+            >
+              Ver tudo sobre nós →
+            </Link>
+          </div>
         </div>
 
         {/* COLUNA DIREITA — números, missão, visão */}

@@ -1,6 +1,6 @@
 import { Megaphone, Bell, AlertCircle, Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useCollection } from "../../hooks/useCollection";
-
 
 const TIPO_CONFIG = {
   urgente: {
@@ -41,7 +41,6 @@ const DEFAULT_TIPO = TIPO_CONFIG.aviso;
 
 export default function Avisos() {
   const { data: todosAvisos = [], loading } = useCollection("avisos");
-  
 
   const avisos = todosAvisos.filter((a) => a.ativo !== false);
 
@@ -83,14 +82,13 @@ export default function Avisos() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {avisos.map((aviso, index) => {
+          {avisos.map((aviso) => {
             const cfg = TIPO_CONFIG[aviso.tipo] ?? DEFAULT_TIPO;
             return (
               <div
                 key={aviso.id}
                 className={`relative flex flex-col gap-4 p-6 rounded-xl border bg-white transition-all duration-500
-                  ${cfg.border} hover:-translate-y-1 hover:shadow-lg
-                  `}
+                  ${cfg.border} hover:-translate-y-1 hover:shadow-lg`}
               >
                 <div className={`absolute top-0 left-0 right-0 h-[3px] rounded-t-xl ${cfg.barra}`} />
                 <div className="flex items-center gap-3">
@@ -116,6 +114,15 @@ export default function Avisos() {
               </div>
             );
           })}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link
+            to="/cultos"
+            className="inline-flex items-center gap-2 text-sm font-bold text-blue-900 border border-blue-900/30 px-6 py-2.5 rounded-lg hover:bg-blue-50 transition"
+          >
+            Ver todos os cultos →
+          </Link>
         </div>
       </div>
     </section>

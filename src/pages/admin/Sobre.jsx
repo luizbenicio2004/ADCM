@@ -4,7 +4,7 @@ import { db } from "../../services/firebase";
 import { useConfig } from "../../context/ConfigContext";
 import { useStorage } from "../../hooks/useStorage";
 import AdminLayout from "../../components/admin/AdminLayout";
-import { Save, Plus, Trash2, BookOpen, ImagePlus, Loader2, X } from "lucide-react";
+import { Save, Plus, Trash2, ImagePlus, Loader2, X } from "lucide-react";
 import OptimizedImage from "../../components/OptimizedImage";
 
 const FORM_VAZIO = {
@@ -16,15 +16,13 @@ const FORM_VAZIO = {
     { valor: "3", label: "Cultos por Semana" },
   ],
   pastores: [],
-  fotosHistoricas: [] };
+  fotosHistoricas: [],
+};
 
-function Card({ title, icon, children }) {
+function Cartao({ titulo, children }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-4">
-      <div className="flex items-center gap-2">
-        {icon && <div className="w-8 h-8 flex items-center justify-center bg-blue-900/10 rounded-lg text-blue-900">{icon}</div>}
-        <h2 className="font-semibold text-gray-800 text-sm">{title}</h2>
-      </div>
+      <h2 className="font-semibold text-gray-800">{titulo}</h2>
       {children}
     </div>
   );
@@ -50,37 +48,26 @@ export default function AdminSobre() {
 
   // Números
   const handleNumero = (i, field, value) =>
-    setForm((prev) => {
-      const numeros = [...prev.numeros];
-      numeros[i] = { ...numeros[i], [field]: value };
-      return { ...prev, numeros };
-    });
+    setForm((prev) => { const n = [...prev.numeros]; n[i] = { ...n[i], [field]: value }; return { ...prev, numeros: n }; });
   const addNumero = () => setForm((prev) => ({ ...prev, numeros: [...prev.numeros, { valor: "", label: "" }] }));
   const removeNumero = (i) => setForm((prev) => ({ ...prev, numeros: prev.numeros.filter((_, idx) => idx !== i) }));
 
   // Pastores
-  const addPastor = () =>
-    setForm((prev) => ({ ...prev, pastores: [...(prev.pastores ?? []), { nome: "", cargo: "", fotoUrl: "" }] }));
+  const addPastor = () => setForm((prev) => ({ ...prev, pastores: [...(prev.pastores ?? []), { nome: "", cargo: "", fotoUrl: "" }] }));
   const removePastor = async (i) => {
     const pastor = form.pastores[i];
-    if (pastor.fotoUrl) {
-      try { await removeFile(pastor.fotoUrl); } catch {}
-    }
+    if (pastor.fotoUrl) { try { await removeFile(pastor.fotoUrl); } catch {} }
     setForm((prev) => ({ ...prev, pastores: prev.pastores.filter((_, idx) => idx !== i) }));
   };
   const handlePastor = (i, field, value) =>
-    setForm((prev) => {
-      const pastores = [...prev.pastores];
-      pastores[i] = { ...pastores[i], [field]: value };
-      return { ...prev, pastores };
-    });
+    setForm((prev) => { const p = [...prev.pastores]; p[i] = { ...p[i], [field]: value }; return { ...prev, pastores: p }; });
   const handleFotoPastor = async (e, i) => {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
       const url = await upload(file, `sobre/pastores/${Date.now()}_${file.name}`);
       handlePastor(i, "fotoUrl", url);
-    } catch { setErro("Erro ao enviar foto do pastor."); }
+    } catch { setErro("Não foi possível enviar a foto do pastor."); }
   };
 
   // Fotos históricas
@@ -90,40 +77,33 @@ export default function AdminSobre() {
     try {
       const urls = await Promise.all(files.map((f) => upload(f, `sobre/historicas/${Date.now()}_${f.name}`)));
       setForm((prev) => ({ ...prev, fotosHistoricas: [...(prev.fotosHistoricas ?? []), ...urls] }));
-    } catch { setErro("Erro ao enviar fotos."); }
+    } catch { setErro("Não foi possível enviar as fotos."); }
   };
   const removeFotoHistorica = async (url) => {
     try {
       await removeFile(url);
       setForm((prev) => ({ ...prev, fotosHistoricas: prev.fotosHistoricas.filter((u) => u !== url) }));
-    } catch { setErro("Erro ao remover foto."); }
+    } catch { setErro("Não foi possível remover a foto."); }
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!form.historia) { setErro("O texto da história é obrigatório."); return; }
-    setErro("");
-    setSalvando(true);
+    if (!form.historia) { setErro("O texto da história não pode ficar em branco."); return; }
+    setErro(""); setSalvando(true);
     try {
       await setDoc(doc(db, "config", "site"), { sobre: form }, { merge: true });
       setSucesso(true);
       setTimeout(() => setSucesso(false), 3000);
-    } catch { setErro("Erro ao salvar. Tente novamente."); }
+    } catch { setErro("Não foi possível salvar. Tente novamente."); }
     finally { setSalvando(false); }
   };
 
-  const inp = (name, placeholder) => (
-    <input type="text" name={name} value={form[name] ?? ""} onChange={handleChange} placeholder={placeholder}
-      className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
-  );
-  const ta = (name, rows, placeholder) => (
-    <textarea name={name} rows={rows} value={form[name] ?? ""} onChange={handleChange} placeholder={placeholder}
-      className="border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
-  );
-
   return (
-    <AdminLayout title="Seção Sobre" subtitle="História, missão, visão, pastores e galeria">
-      <div className="max-w-2xl ">
+    <AdminLayout
+      title="Sobre a Igreja"
+      subtitle="Edite a história, missão, pastores e fotos que aparecem na página Sobre"
+    >
+      <div className="max-w-2xl">
         {loading ? (
           <div className="flex flex-col gap-4">{Array(4).fill(0).map((_, i) => <div key={i} className="h-10 bg-gray-200 rounded-lg animate-pulse" />)}</div>
         ) : (
@@ -132,40 +112,53 @@ export default function AdminSobre() {
             {sucesso && <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3">✅ Salvo com sucesso!</div>}
 
             {/* História */}
-            <Card title="História da Igreja" icon={<BookOpen size={18} />}>
+            <Cartao titulo="📖 História da Igreja">
+              <p className="text-xs text-gray-400 -mt-2">Aparece na seção "Sobre" do site. Use uma linha em branco para separar parágrafos.</p>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Texto *</label>
-                {ta("historia", 6, "Conte a história da igreja…")}
-                <p className="text-xs text-gray-400">Use linha em branco para separar parágrafos.</p>
+                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Texto da história *</label>
+                <textarea name="historia" rows={6} value={form.historia ?? ""} onChange={handleChange}
+                  placeholder="Conte a história da igreja, quando foi fundada, quem foram os pioneiros…"
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
               </div>
-            </Card>
+            </Cartao>
 
             {/* Versículo */}
-            <Card title="Versículo em Destaque">
+            <Cartao titulo="📜 Versículo em Destaque">
+              <p className="text-xs text-gray-400 -mt-2">Aparece em destaque na página Sobre.</p>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Versículo</label>
-                {ta("versiculo", 3, "Ex: Porque Deus amou o mundo…")}
+                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Texto do versículo</label>
+                <textarea name="versiculo" rows={3} value={form.versiculo ?? ""} onChange={handleChange}
+                  placeholder="Ex: Porque Deus amou o mundo de tal maneira…"
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Referência</label>
-                {inp("referenciaVersiculo", "Ex: João 3:16")}
+                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Referência bíblica</label>
+                <input type="text" name="referenciaVersiculo" value={form.referenciaVersiculo ?? ""} onChange={handleChange}
+                  placeholder="Ex: João 3:16"
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
               </div>
-            </Card>
+            </Cartao>
 
             {/* Missão e Visão */}
-            <Card title="Missão e Visão">
+            <Cartao titulo="🎯 Missão e Visão">
+              <p className="text-xs text-gray-400 -mt-2">Frases curtas que resumem o propósito e o objetivo da igreja.</p>
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Nossa Missão</label>
-                {inp("missao", "Ex: Proclamar o evangelho…")}
+                <input type="text" name="missao" value={form.missao ?? ""} onChange={handleChange}
+                  placeholder="Ex: Proclamar o evangelho e fazer discípulos"
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Nossa Visão</label>
-                {inp("visao", "Ex: Ser uma igreja relevante…")}
+                <input type="text" name="visao" value={form.visao ?? ""} onChange={handleChange}
+                  placeholder="Ex: Ser uma igreja que transforma a cidade"
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
               </div>
-            </Card>
+            </Cartao>
 
             {/* Números */}
-            <Card title="Números / Estatísticas">
+            <Cartao titulo="📊 Números da Igreja">
+              <p className="text-xs text-gray-400 -mt-2">Aparecem como destaques visuais na página Sobre. Ex: "200+ Famílias".</p>
               <div className="flex flex-col gap-3">
                 {form.numeros.map((num, i) => (
                   <div key={i} className="flex items-center gap-3">
@@ -179,18 +172,18 @@ export default function AdminSobre() {
                     </button>
                   </div>
                 ))}
-                <button type="button" onClick={addNumero} className="flex items-center gap-2 text-sm text-blue-900 hover:underline">
+                <button type="button" onClick={addNumero} className="flex items-center gap-2 text-sm text-blue-900 hover:underline w-fit">
                   <Plus size={15} /> Adicionar número
                 </button>
               </div>
-            </Card>
+            </Cartao>
 
             {/* Pastores */}
-            <Card title="👨‍💼 Pastores">
+            <Cartao titulo="👨‍💼 Pastores e Líderes">
+              <p className="text-xs text-gray-400 -mt-2">Aparecem na seção de liderança da página Sobre.</p>
               <div className="flex flex-col gap-5">
                 {(form.pastores ?? []).map((pastor, i) => (
                   <div key={i} className="flex gap-4 p-4 border border-gray-100 rounded-xl bg-gray-50">
-                    {/* Foto */}
                     <div className="flex flex-col items-center gap-2 flex-shrink-0">
                       {pastor.fotoUrl ? (
                         <div className="relative w-16 h-16 rounded-full overflow-hidden border border-gray-200">
@@ -217,30 +210,29 @@ export default function AdminSobre() {
                         foto
                       </button>
                     </div>
-
-                    {/* Dados */}
                     <div className="flex flex-col gap-2 flex-1">
                       <input type="text" value={pastor.nome} onChange={(e) => handlePastor(i, "nome", e.target.value)}
-                        placeholder="Nome completo" className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
+                        placeholder="Nome completo"
+                        className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
                       <input type="text" value={pastor.cargo} onChange={(e) => handlePastor(i, "cargo", e.target.value)}
-                        placeholder="Cargo (ex: Pastor Titular)" className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
+                        placeholder="Cargo (ex: Pastor Titular, Diácono)"
+                        className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
                     </div>
-
                     <button type="button" onClick={() => removePastor(i)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition self-start">
                       <Trash2 size={15} />
                     </button>
                   </div>
                 ))}
-                <button type="button" onClick={addPastor}
-                  className="flex items-center gap-2 text-sm text-blue-900 hover:underline">
-                  <Plus size={15} /> Adicionar pastor
+                <button type="button" onClick={addPastor} className="flex items-center gap-2 text-sm text-blue-900 hover:underline w-fit">
+                  <Plus size={15} /> Adicionar pastor ou líder
                 </button>
               </div>
-            </Card>
+            </Cartao>
 
             {/* Fotos históricas */}
-            <Card title="📷 Fotos Históricas da Igreja">
+            <Cartao titulo="📷 Fotos da Igreja">
+              <p className="text-xs text-gray-400 -mt-2">Fotos históricas ou da comunidade que aparecem na galeria da página Sobre.</p>
               <div className="flex flex-col gap-3">
                 {(form.fotosHistoricas ?? []).length > 0 && (
                   <div className="grid grid-cols-3 gap-2">
@@ -257,11 +249,13 @@ export default function AdminSobre() {
                 )}
                 <button type="button" onClick={() => fotoHistoricaRef.current?.click()} disabled={uploading}
                   className="flex items-center gap-2 text-sm text-gray-600 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition w-fit disabled:opacity-60">
-                  {uploading ? <><Loader2 size={14} className="animate-spin" /> Enviando… {progress}%</> : <><ImagePlus size={14} /> Adicionar fotos</>}
+                  {uploading
+                    ? <><Loader2 size={14} className="animate-spin" /> Enviando… {progress}%</>
+                    : <><ImagePlus size={14} /> Adicionar fotos</>}
                 </button>
                 <input ref={fotoHistoricaRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFotosHistoricas} />
               </div>
-            </Card>
+            </Cartao>
 
             <button type="submit" disabled={salvando}
               className="flex items-center gap-2 bg-blue-900 text-white text-sm font-semibold px-6 py-2.5 rounded-lg hover:bg-blue-800 transition disabled:opacity-60 self-start">

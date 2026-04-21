@@ -49,6 +49,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Pedidos de oração — qualquer visitante pode CRIAR, somente admin lê/gerencia
+    match /pedidos_oracao/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
     // Tabela de admins — apenas o próprio admin pode ler seu registro
     // Nunca permitir escrita pelo frontend (somente via Console do Firebase)
     match /admins/{uid} {
