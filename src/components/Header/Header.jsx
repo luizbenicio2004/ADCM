@@ -79,7 +79,7 @@ export default function Header() {
     { id: "ministerios", label: "Ministérios", secao: "secaoMinisterios", pagina: null },
     { id: "eventos",     label: "Eventos",     secao: "secaoEventos",     pagina: "/eventos" },
     { id: "reciclagem",  label: "Reciclagem",  secao: "secaoReciclagem",  pagina: "/reciclagem" },
-    { id: "avisos",      label: "Avisos",      secao: "secaoAvisos",      pagina: null },
+    { id: "oracao",      label: "Oração",      secao: "secaoOracao",      pagina: null },
   ];
 
   // Filtra pela config — se config ainda não carregou, mostra todos

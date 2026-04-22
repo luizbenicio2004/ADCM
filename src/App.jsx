@@ -35,6 +35,7 @@ const AdminReciclagem     = lazy(() => import("./pages/admin/Reciclagem"));
 const AdminLive           = lazy(() => import("./pages/admin/Live"));
 const AdminHero           = lazy(() => import("./pages/admin/Hero"));
 const AdminOracao         = lazy(() => import("./pages/admin/Oracao"));
+const AdminTestemunhos    = lazy(() => import("./pages/admin/Testemunhos"));
 
 // ================= LOADING =================
 
@@ -107,6 +108,7 @@ export default function App() {
               <Route path="/admin/reciclagem"       element={<PrivateRoute><AdminReciclagem /></PrivateRoute>} />
               <Route path="/admin/live"             element={<PrivateRoute><AdminLive /></PrivateRoute>} />
               <Route path="/admin/oracao"           element={<PrivateRoute><AdminOracao /></PrivateRoute>} />
+              <Route path="/admin/testemunhos"      element={<PrivateRoute><AdminTestemunhos /></PrivateRoute>} />
               <Route path="/admin/config"           element={<PrivateRoute><AdminConfig /></PrivateRoute>} />
 
               {/* ================= 404 ================= */}

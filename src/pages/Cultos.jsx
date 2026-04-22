@@ -54,12 +54,14 @@ export default function CultosPage() {
 
           {/* CARDS DE CULTOS */}
           {loading ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {Array(3).fill(0).map((_, i) => (
-                <div key={i} className="rounded-xl border border-gray-200 bg-white p-8 animate-pulse">
-                  <div className="w-11 h-11 bg-gray-200 rounded-full mx-auto mb-4" />
-                  <div className="h-4 bg-gray-200 rounded w-24 mx-auto mb-3" />
-                  <div className="h-8 bg-gray-200 rounded w-20 mx-auto" />
+                <div key={i} className="rounded-xl border border-gray-200 bg-white overflow-hidden animate-pulse">
+                  <div className="h-52 bg-gray-200" />
+                  <div className="p-8 flex flex-col items-center gap-3">
+                    <div className="h-3 bg-gray-200 rounded w-24" />
+                    <div className="h-8 bg-gray-200 rounded w-20" />
+                  </div>
                 </div>
               ))}
             </div>
@@ -74,31 +76,50 @@ export default function CultosPage() {
                 {cultosOrdenados.map((culto) => (
                   <div
                     key={culto.id}
-                    className={`relative flex flex-col items-center text-center gap-3 p-8 rounded-xl border bg-white transition-all duration-300
+                    className={`relative flex flex-col rounded-xl border bg-white transition-all duration-500 overflow-hidden
                       ${culto.destaque ? "border-blue-900 shadow-md" : "border-gray-200"}
                       hover:-translate-y-1 hover:shadow-lg`}
                   >
-                    <div className={`absolute top-0 left-0 right-0 h-[3px] rounded-t-xl
+                    {/* barra de destaque */}
+                    <div className={`absolute top-0 left-0 right-0 h-[3px] z-10
                       ${culto.destaque ? "bg-gradient-to-r from-blue-900 to-blue-500" : "bg-gray-200"}`}
                     />
-                    <div className={`w-11 h-11 flex items-center justify-center rounded-full border
-                      ${culto.destaque ? "bg-blue-900/10 border-blue-900/20 text-blue-900" : "bg-gray-100 border-gray-200 text-gray-400"}`}>
-                      {getIcone(culto.nome)}
-                    </div>
-                    <span className="text-xs font-bold tracking-widest uppercase text-gray-500">
-                      {culto.dia || "Dia não informado"}
-                    </span>
-                    <strong className="text-3xl font-bold text-blue-900">
-                      {culto.horario || "--:--"}
-                    </strong>
-                    {culto.nome && <p className="text-sm font-semibold text-gray-700">{culto.nome}</p>}
-                    {culto.descricao && <p className="text-sm text-gray-500 leading-relaxed">{culto.descricao}</p>}
-                    {culto.obs && <p className="text-xs text-gray-400 italic">{culto.obs}</p>}
-                    {culto.destaque && (
-                      <span className="mt-2 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-900 bg-blue-900/10 border border-blue-900/20 rounded-full">
-                        Principal
-                      </span>
+
+                    {/* banner — ocupa largura total */}
+                    {culto.banner ? (
+                      <div className="w-full overflow-hidden flex-shrink-0">
+                        <OptimizedImage
+                          src={culto.banner}
+                          alt={culto.nome || culto.dia}
+                          className="w-full h-auto object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-36 bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center">
+                        <div className={`w-12 h-12 flex items-center justify-center rounded-full border
+                          ${culto.destaque ? "bg-blue-800/60 border-blue-400/40 text-blue-200" : "bg-white/10 border-white/20 text-white/60"}`}>
+                          {getIcone(culto.nome)}
+                        </div>
+                      </div>
                     )}
+
+                    {/* conteúdo centralizado */}
+                    <div className="flex flex-col items-center text-center gap-3 px-8 py-8">
+                      <span className="text-xs font-bold tracking-widest uppercase text-gray-500">
+                        {culto.dia || "Dia não informado"}
+                      </span>
+                      <strong className="text-3xl font-bold text-blue-900">
+                        {culto.horario || "--:--"}
+                      </strong>
+                      {culto.nome && <p className="text-sm font-semibold text-gray-700">{culto.nome}</p>}
+                      {culto.descricao && <p className="text-sm text-gray-500 leading-relaxed">{culto.descricao}</p>}
+                      {culto.obs && <p className="text-xs text-gray-400 italic">{culto.obs}</p>}
+                      {culto.destaque && (
+                        <span className="mt-2 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-900 bg-blue-900/10 border border-blue-900/20 rounded-full">
+                          Principal
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -118,12 +139,12 @@ export default function CultosPage() {
                   <button
                     key={url}
                     onClick={() => abrirEm(i)}
-                    className="aspect-square rounded-xl overflow-hidden hover:opacity-90 transition"
+                    className="group aspect-[3/4] rounded-xl overflow-hidden hover:opacity-90 transition"
                   >
                     <OptimizedImage
                       src={url}
                       alt={`Foto do culto ${i + 1}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                     />
                   </button>
                 ))}

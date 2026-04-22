@@ -12,6 +12,7 @@ import Footer from "../components/Footer/Footer";
 import WhatsAppButton from "../components/WhatsApp/WhatsAppButton";
 import BackToTop from "../components/BackToTop/BackToTop";
 import Live from "../components/Live/Live";
+import Testemunhos from "../components/Testemunhos/Testemunhos";
 import { useSEO } from "../hooks/useSEO";
 import { useConfig } from "../context/ConfigContext";
 
@@ -41,9 +42,10 @@ export default function Home() {
         {isAtiva(config, "secaoMinisterios") && <Ministerios />}
         {isAtiva(config, "secaoEventos")     && <Eventos />}
         {isAtiva(config, "secaoReciclagem")  && <Reciclagem />}
-        {isAtiva(config, "secaoAvisos")      && <Avisos />}
-        {isAtiva(config, "secaoOracao")      && <Oracao />}
-        {isAtiva(config, "secaoLocalizacao") && <Localizacao />}
+        {isAtiva(config, "secaoAvisos")       && <Avisos />}
+        {isAtiva(config, "secaoTestemunhos")  && <Testemunhos />}
+        {isAtiva(config, "secaoOracao")       && <Oracao />}
+        {isAtiva(config, "secaoLocalizacao")  && <Localizacao />}
       </main>
       <Footer />
       <WhatsAppButton />

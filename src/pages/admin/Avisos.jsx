@@ -65,8 +65,12 @@ export default function AdminAvisos() {
   }
 
   async function handleToggleAtivo(aviso) {
-    await atualizar(aviso.id, { ativo: !aviso.ativo });
-    addToast(aviso.ativo ? "Aviso ocultado do site." : "Aviso publicado no site!");
+    try {
+      await atualizar(aviso.id, { ativo: !aviso.ativo });
+      addToast(aviso.ativo ? "Aviso ocultado do site." : "Aviso publicado no site!");
+    } catch {
+      addToast("Não foi possível atualizar o aviso.", "error");
+    }
   }
 
   return (

@@ -152,8 +152,13 @@ export default function AdminReciclagem() {
   };
 
   const handleMoverOrdem = async (banner, direcao) => {
+    // Faz swap da ordem entre o banner atual e o vizinho
+    const idx = bannersOrdenados.findIndex((b) => b.id === banner.id);
+    const vizinho = bannersOrdenados[idx + direcao];
+    if (!vizinho) return;
     try {
-      await atualizar(banner.id, { ...banner, ordem: (banner.ordem ?? 0) + direcao });
+      await atualizar(banner.id, { ordem: vizinho.ordem ?? idx + direcao });
+      await atualizar(vizinho.id, { ordem: banner.ordem ?? idx });
     } catch {
       addToast("Erro ao reordenar.", "error");
     }

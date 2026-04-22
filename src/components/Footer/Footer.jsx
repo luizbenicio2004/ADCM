@@ -126,6 +126,7 @@ export default function Footer() {
                   { href: "/#eventos",     label: "Eventos",      secao: "secaoEventos" },
                   { href: "/#reciclagem",  label: "Reciclagem",   secao: "secaoReciclagem" },
                   { href: "/#avisos",      label: "Avisos",       secao: "secaoAvisos" },
+                  { href: "/#testemunhos", label: "Testemunhos",  secao: "secaoTestemunhos" },
                   { href: "/#oracao",      label: "Oração",       secao: "secaoOracao" },
                   { href: "/#localizacao", label: "Localização",  secao: "secaoLocalizacao" },
                 ]

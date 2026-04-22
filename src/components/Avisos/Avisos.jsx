@@ -1,6 +1,7 @@
 import { Megaphone, Bell, AlertCircle, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCollection } from "../../hooks/useCollection";
+import OptimizedImage from "../OptimizedImage";
 
 const TIPO_CONFIG = {
   urgente: {
@@ -10,6 +11,7 @@ const TIPO_CONFIG = {
     badge: "bg-red-100 text-red-700",
     icone: <AlertCircle size={18} />,
     label: "Urgente",
+    fallbackBg: "from-red-700 to-red-500",
   },
   evento: {
     border: "border-blue-200",
@@ -18,6 +20,7 @@ const TIPO_CONFIG = {
     badge: "bg-blue-100 text-blue-700",
     icone: <Calendar size={18} />,
     label: "Evento",
+    fallbackBg: "from-blue-800 to-blue-600",
   },
   aviso: {
     border: "border-yellow-200",
@@ -26,6 +29,7 @@ const TIPO_CONFIG = {
     badge: "bg-yellow-100 text-yellow-700",
     icone: <Bell size={18} />,
     label: "Aviso",
+    fallbackBg: "from-yellow-600 to-yellow-400",
   },
   info: {
     border: "border-blue-200",
@@ -34,6 +38,7 @@ const TIPO_CONFIG = {
     badge: "bg-blue-100 text-blue-700",
     icone: <Megaphone size={18} />,
     label: "Informação",
+    fallbackBg: "from-blue-700 to-blue-500",
   },
 };
 
@@ -41,7 +46,6 @@ const DEFAULT_TIPO = TIPO_CONFIG.aviso;
 
 export default function Avisos() {
   const { data: todosAvisos = [], loading } = useCollection("avisos");
-
   const avisos = todosAvisos.filter((a) => a.ativo !== false);
 
   if (loading) {
@@ -55,13 +59,12 @@ export default function Avisos() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array(3).fill(0).map((_, i) => (
-              <div key={i} className="rounded-xl border border-gray-200 p-6 animate-pulse">
-                <div className="flex gap-3 mb-4">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full" />
-                  <div className="h-5 bg-gray-200 rounded w-16 self-center" />
+              <div key={i} className="rounded-xl border border-gray-200 overflow-hidden animate-pulse">
+                <div className="aspect-[3/4] bg-gray-200" />
+                <div className="p-4 flex flex-col gap-2">
+                  <div className="h-5 bg-gray-200 rounded w-3/4" />
+                  <div className="h-4 bg-gray-200 rounded w-full" />
                 </div>
-                <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
-                <div className="h-4 bg-gray-200 rounded w-full" />
               </div>
             ))}
           </div>
@@ -87,30 +90,47 @@ export default function Avisos() {
             return (
               <div
                 key={aviso.id}
-                className={`relative flex flex-col gap-4 p-6 rounded-xl border bg-white transition-all duration-500
-                  ${cfg.border} hover:-translate-y-1 hover:shadow-lg`}
+                className={`group relative flex flex-col rounded-xl border bg-white overflow-hidden
+                  transition-all duration-500 ${cfg.border} hover:-translate-y-1 hover:shadow-lg`}
               >
-                <div className={`absolute top-0 left-0 right-0 h-[3px] rounded-t-xl ${cfg.barra}`} />
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 flex items-center justify-center rounded-full border ${cfg.iconeBg}`}>
-                    {cfg.icone}
+                <div className={`absolute top-0 left-0 right-0 h-[3px] z-10 ${cfg.barra}`} />
+
+                {/* foto ou fallback com gradiente */}
+                {aviso.fotoUrl ? (
+                  <div className="aspect-[3/4] overflow-hidden">
+                    <OptimizedImage
+                      src={aviso.fotoUrl}
+                      alt={aviso.titulo || "Aviso"}
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                  <span className={`text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${cfg.badge}`}>
-                    {cfg.label}
-                  </span>
+                ) : (
+                  <div className={`h-44 bg-gradient-to-br ${cfg.fallbackBg} flex items-center justify-center`}>
+                    <div className={`w-14 h-14 flex items-center justify-center rounded-xl border ${cfg.iconeBg}`}>
+                      {cfg.icone}
+                    </div>
+                  </div>
+                )}
+
+                <div className="p-4 flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${cfg.badge}`}>
+                      {cfg.label}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900 leading-tight">{aviso.titulo || "Sem título"}</h3>
+                  {(aviso.mensagem || aviso.descricao) && (
+                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{aviso.mensagem || aviso.descricao}</p>
+                  )}
+                  {(aviso.data || aviso.horario || aviso.local) && (
+                    <div className="flex flex-col gap-1 pt-2 border-t border-gray-100">
+                      {aviso.data && (
+                        <span className="text-xs text-gray-400">📅 {aviso.data}{aviso.horario ? ` · ${aviso.horario}` : ""}</span>
+                      )}
+                      {aviso.local && <span className="text-xs text-gray-400">📍 {aviso.local}</span>}
+                    </div>
+                  )}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">{aviso.titulo || "Sem título"}</h3>
-                {(aviso.mensagem || aviso.descricao) && (
-                  <p className="text-sm text-gray-600 leading-relaxed">{aviso.mensagem || aviso.descricao}</p>
-                )}
-                {(aviso.data || aviso.horario || aviso.local) && (
-                  <div className="flex flex-col gap-1 pt-2 border-t border-gray-100">
-                    {aviso.data && (
-                      <span className="text-xs text-gray-400">📅 {aviso.data}{aviso.horario ? ` · ${aviso.horario}` : ""}</span>
-                    )}
-                    {aviso.local && <span className="text-xs text-gray-400">📍 {aviso.local}</span>}
-                  </div>
-                )}
               </div>
             );
           })}

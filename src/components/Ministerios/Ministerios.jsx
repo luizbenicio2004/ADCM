@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { useCollection } from "../../hooks/useCollection";
 import { MINISTERIOS as MINISTERIOS_ESTATICOS } from "../../data/igreja";
+import OptimizedImage from "../OptimizedImage";
 
 const ICONES = [<Music2 size={20} />, <Star size={20} />, <Flame size={20} />, <Heart size={20} />, <Users size={20} />];
 const CORES = [
@@ -36,35 +37,49 @@ export default function Ministerios() {
         {error && <p className="text-center text-gray-400 mb-8">Não conseguimos carregar os ministérios agora. Tente recarregar a página.</p>}
 
         {loading ? (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array(4).fill(0).map((_, i) => (
-              <div key={i} className="flex items-start gap-4 p-6 rounded-xl border border-gray-200 animate-pulse">
-                <div className="w-12 h-12 bg-gray-200 rounded-lg flex-shrink-0" />
-                <div className="flex-1 flex flex-col gap-2">
-                  <div className="h-4 bg-gray-200 rounded w-32" />
-                  <div className="h-3 bg-gray-200 rounded w-full" />
-                  <div className="h-3 bg-gray-200 rounded w-4/5" />
+              <div key={i} className="rounded-xl border border-gray-200 overflow-hidden animate-pulse">
+                <div className="aspect-[3/4] bg-gray-200" />
+                <div className="p-4 flex flex-col gap-2">
+                  <div className="h-4 bg-gray-200 rounded w-2/3" />
+                  <div className="h-3 bg-gray-200 rounded w-1/2" />
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {lista.map((min, index) => {
-              const inner = (
+
+              const cardClass = `group rounded-xl border border-gray-200 overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-500`;
+
+              const cardContent = (
                 <>
-                  <div className={`w-12 h-12 flex items-center justify-center rounded-lg border flex-shrink-0 ${CORES[index % CORES.length]}`}>
-                    {ICONES[index % ICONES.length]}
-                  </div>
-                  <div className="flex flex-col gap-1 flex-1">
-                    <h3 className="text-base font-bold text-gray-900">{min.nome ?? min.titulo}</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">{min.descricao}</p>
-                    {min.responsavel && <p className="text-xs text-gray-400 mt-1">Responsável: {min.responsavel}</p>}
+                  {min.fotoUrl ? (
+                    <div className="aspect-[3/4] overflow-hidden">
+                      <OptimizedImage
+                        src={min.fotoUrl}
+                        alt={min.nome ?? min.titulo}
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-44 bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center">
+                      <div className={`w-14 h-14 flex items-center justify-center rounded-xl border ${CORES[index % CORES.length]}`}>
+                        {ICONES[index % ICONES.length]}
+                      </div>
+                    </div>
+                  )}
+                  <div className="p-4 flex flex-col gap-1.5">
+                    <h3 className="font-bold text-gray-900 leading-tight">{min.nome ?? min.titulo}</h3>
+                    {min.responsavel && <p className="text-xs text-gray-400">👤 {min.responsavel}</p>}
                     {(min.diaSemana || min.horario) && (
-                      <p className="text-xs text-gray-400">{min.diaSemana} {min.horario && `· ${min.horario}`}</p>
+                      <p className="text-xs text-gray-400">📅 {min.diaSemana}{min.horario && ` · ${min.horario}`}</p>
                     )}
+                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-2 mt-0.5">{min.descricao}</p>
                     {usandoFirestore && (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-blue-900 mt-2">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-blue-900 mt-1">
                         Ver mais <ArrowRight size={12} />
                       </span>
                     )}
@@ -72,14 +87,10 @@ export default function Ministerios() {
                 </>
               );
 
-              const animClass = `flex items-start gap-4 p-6 rounded-xl border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all`;
-              const animStyle = {};
-
               return usandoFirestore ? (
-                <Link key={min.id} to={`/ministerio/${min.id}`}
-                  className={animClass + " hover:border-blue-900/20"} style={animStyle}>{inner}</Link>
+                <Link key={min.id} to={`/ministerio/${min.id}`} className={cardClass}>{cardContent}</Link>
               ) : (
-                <div key={min.id ?? index} className={animClass} style={animStyle}>{inner}</div>
+                <div key={min.id ?? index} className={cardClass}>{cardContent}</div>
               );
             })}
           </div>

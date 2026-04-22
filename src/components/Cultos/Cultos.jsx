@@ -80,11 +80,11 @@ export default function Cultos() {
 
               {/* foto de largura total — só aparece se tiver banner */}
               {culto.banner && (
-                <div className="w-full aspect-[16/7] overflow-hidden flex-shrink-0">
+                <div className="w-full overflow-hidden flex-shrink-0">
                   <OptimizedImage
                     src={culto.banner}
                     alt={culto.nome || culto.dia}
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto object-contain"
                   />
                 </div>
               )}

@@ -45,15 +45,16 @@ function SectionToggle({ label, name, checked, onChange, descricao }) {
 }
 
 const SECOES_PADRAO = {
-  secaoLive:        true,
-  secaoSobre:       true,
-  secaoCultos:      true,
-  secaoMinisterios: true,
-  secaoEventos:     true,
-  secaoReciclagem:  true,
-  secaoAvisos:      true,
-  secaoOracao:      true,
-  secaoLocalizacao: true,
+  secaoLive:          true,
+  secaoSobre:         true,
+  secaoCultos:        true,
+  secaoMinisterios:   true,
+  secaoEventos:       true,
+  secaoReciclagem:    true,
+  secaoAvisos:        true,
+  secaoTestemunhos:   true,
+  secaoOracao:        true,
+  secaoLocalizacao:   true,
 };
 
 const SECOES_CONFIG = [
@@ -64,6 +65,7 @@ const SECOES_CONFIG = [
   { name: "secaoEventos",     label: "Eventos",              descricao: "Próximos eventos da igreja" },
   { name: "secaoReciclagem",  label: "Reciclagem",           descricao: "Programa de reciclagem da ADCM" },
   { name: "secaoAvisos",      label: "Avisos",               descricao: "Avisos e comunicados" },
+  { name: "secaoTestemunhos",  label: "Testemunhos",           descricao: "Carrossel de vidas transformadas" },
   { name: "secaoOracao",      label: "Pedido de Oração",     descricao: "Formulário de envio de pedidos" },
   { name: "secaoLocalizacao", label: "Localização",          descricao: "Endereço e mapa da igreja" },
 ];

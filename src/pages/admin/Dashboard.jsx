@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Home, LogOut } from "lucide-react";
 import OptimizedImage from "../../components/OptimizedImage";
+import { useDoc } from "../../hooks/useDoc";
 
 const SECOES = [
   {
@@ -61,6 +62,12 @@ const SECOES = [
     descricao: "Ative e coloque o link da live do YouTube no site",
   },
   {
+    label: "Testemunhos",
+    icon: "✨",
+    path: "/admin/testemunhos",
+    descricao: "Gerencie os relatos de vidas transformadas no site",
+  },
+  {
     label: "Pedidos de Oração",
     icon: "🙏",
     path: "/admin/oracao",
@@ -77,7 +84,8 @@ const SECOES = [
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const primeiroNome = user?.email?.split("@")[0] ?? "pastor";
+  const { data: adminData } = useDoc("admins", user?.uid);
+  const primeiroNome = adminData?.nome?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "pastor";
 
   async function handleLogout() {
     await signOut(auth);

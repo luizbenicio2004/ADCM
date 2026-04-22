@@ -95,7 +95,7 @@ export default function Ministerio() {
                     <OptimizedImage
                       src={ministerio.fotoUrl}
                       alt={ministerio.nome}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                 )}
@@ -166,13 +166,13 @@ export default function Ministerio() {
                       <button
                         key={url}
                         onClick={() => abrirEm(i)}
-                        className="aspect-square rounded-xl overflow-hidden hover:opacity-90 transition"
+                        className="group aspect-[3/4] rounded-xl overflow-hidden hover:opacity-90 transition"
                         aria-label={`Abrir foto ${i + 1} de ${fotos.length}`}
                       >
                         <OptimizedImage
                           src={url}
                           alt={`Foto ${i + 1}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                         />
                       </button>
                     ))}

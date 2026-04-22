@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Home, LayoutDashboard } from "lucide-react";
+import { Home, ArrowLeft } from "lucide-react";
 
 export default function AdminLayout({ title, subtitle, children }) {
   return (
@@ -10,13 +10,13 @@ export default function AdminLayout({ title, subtitle, children }) {
         <div className="flex items-center gap-4">
           <Link
             to="/admin/dashboard"
-            className="text-gray-500 hover:text-gray-900 transition-colors"
-            title="Voltar ao painel"
+            className="flex items-center gap-2 text-sm font-semibold text-blue-900 bg-blue-50 border border-blue-900/20 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors"
           >
-            <LayoutDashboard size={20} />
+            <ArrowLeft size={15} />
+            Voltar ao painel
           </Link>
 
-          <div>
+          <div className="border-l border-gray-200 pl-4">
             <h1 className="font-bold text-gray-900">{title}</h1>
             {subtitle && (
               <p className="text-xs text-gray-500">{subtitle}</p>
@@ -27,7 +27,6 @@ export default function AdminLayout({ title, subtitle, children }) {
         <Link
           to="/"
           className="flex items-center gap-2 text-sm text-blue-900 border border-blue-900/30 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors font-medium"
-          title="Ver o site"
         >
           <Home size={15} />
           Ver site

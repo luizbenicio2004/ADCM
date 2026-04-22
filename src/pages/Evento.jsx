@@ -61,12 +61,16 @@ export default function EventoPage() {
 
   const handleShare = async () => {
     const url = window.location.href;
-    if (navigator.share) {
-      await navigator.share({ title: evento?.titulo, url });
-    } else {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: evento?.titulo, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {
+      // usuário cancelou o share ou permissão negada
     }
   };
 
@@ -88,7 +92,7 @@ export default function EventoPage() {
           {/* Loading */}
           {loading && (
             <div className="flex flex-col gap-6 animate-pulse">
-              <div className="h-64 bg-gray-200 rounded-2xl" />
+              <div className="aspect-[3/4] bg-gray-200 rounded-2xl" />
               <div className="h-8 bg-gray-200 rounded w-2/3" />
               <div className="h-4 bg-gray-200 rounded w-full" />
             </div>
@@ -103,9 +107,14 @@ export default function EventoPage() {
           {evento && !loading && (
             <div className="flex flex-col gap-8">
 
+              {/* Foto principal — formato banner igual ao card */}
               {evento.fotoUrl && (
                 <div className="w-full rounded-2xl overflow-hidden">
-                  <OptimizedImage src={evento.fotoUrl} alt={evento.titulo} className="w-full h-auto object-cover" />
+                  <OptimizedImage
+                    src={evento.fotoUrl}
+                    alt={evento.titulo}
+                    className="w-full h-auto object-cover object-top"
+                  />
                 </div>
               )}
 
@@ -142,14 +151,22 @@ export default function EventoPage() {
                 <p className="text-gray-600 leading-relaxed text-lg">{evento.descricao}</p>
               )}
 
+              {/* Galeria */}
               {fotos.length > 0 && (
                 <div className="flex flex-col gap-4">
                   <h2 className="text-xl font-bold text-gray-900">Galeria</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {fotos.map((url, i) => (
-                      <button key={url} onClick={() => abrirEm(i)}
-                        className="aspect-square rounded-xl overflow-hidden hover:opacity-90 transition">
-                        <OptimizedImage src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        key={url}
+                        onClick={() => abrirEm(i)}
+                        className="group aspect-[3/4] rounded-xl overflow-hidden hover:opacity-90 transition"
+                      >
+                        <OptimizedImage
+                          src={url}
+                          alt={`Foto ${i + 1}`}
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                        />
                       </button>
                     ))}
                   </div>

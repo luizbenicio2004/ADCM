@@ -42,9 +42,7 @@ export default function ReciclagemPage() {
               <h1 className="text-4xl md:text-5xl font-bold">Projeto Reciclagem</h1>
             </div>
             {descricao && (
-              <p className="text-green-100 text-lg max-w-[600px] mx-auto leading-relaxed">
-                {descricao}
-              </p>
+              <p className="text-green-100 text-lg max-w-[600px] mx-auto leading-relaxed">{descricao}</p>
             )}
           </div>
         </section>
@@ -87,27 +85,41 @@ export default function ReciclagemPage() {
             {loadingBanners ? (
               <div className="grid sm:grid-cols-2 gap-6">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="bg-gray-200 rounded-2xl h-56 animate-pulse" />
+                  <div key={i} className="rounded-xl border border-green-200 overflow-hidden animate-pulse">
+                    <div className="aspect-[3/4] bg-gray-200" />
+                    <div className="p-4 flex flex-col gap-2">
+                      <div className="h-4 bg-gray-200 rounded w-2/3" />
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : bannersOrdenados.length > 0 ? (
               <div className="grid sm:grid-cols-2 gap-6">
                 {bannersOrdenados.map((banner) => (
-                  <div key={banner.id} className="bg-white rounded-2xl border border-green-200 overflow-hidden shadow-sm">
-                    {banner.imagemUrl && (
-                      <OptimizedImage
-                        src={banner.imagemUrl}
-                        alt={banner.titulo || "Banner"}
-                        className="w-full h-48 object-cover"
-                      />
+                  <div
+                    key={banner.id}
+                    className="group bg-white rounded-xl border border-green-200 overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-500"
+                  >
+                    {banner.imagemUrl ? (
+                      <div className="aspect-[3/4] overflow-hidden">
+                        <OptimizedImage
+                          src={banner.imagemUrl}
+                          alt={banner.titulo || "Banner"}
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-44 bg-gradient-to-br from-green-700 to-green-500 flex items-center justify-center">
+                        <Recycle size={40} className="text-white/40" />
+                      </div>
                     )}
                     {(banner.titulo || banner.descricao) && (
-                      <div className="p-5">
+                      <div className="p-4">
                         {banner.titulo && (
                           <h3 className="font-bold text-gray-900 text-base mb-1">{banner.titulo}</h3>
                         )}
                         {banner.descricao && (
-                          <p className="text-sm text-gray-600 leading-relaxed">{banner.descricao}</p>
+                          <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{banner.descricao}</p>
                         )}
                       </div>
                     )}

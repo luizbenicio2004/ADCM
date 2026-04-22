@@ -20,7 +20,7 @@ function Cartao({ titulo, descricao, children }) {
   );
 }
 
-export default function AdminCultos() {
+export default function AdminCultosGaleria() {
   const { data: cultosConfig } = useDoc("config", "cultos");
   const { upload, remove: removeFile, progress, uploading } = useStorage();
 

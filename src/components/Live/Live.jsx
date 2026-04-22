@@ -1,17 +1,12 @@
 import { useConfig } from "../../context/ConfigContext";
-
-function toEmbedUrl(url) {
-  if (!url) return null;
-  const match = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1` : null;
-}
+import { toEmbedUrl } from "../../utils/youtube";
 
 export default function Live() {
   const { config, loading } = useConfig();
 
   if (loading || !config?.liveAtivo || !config?.liveUrl) return null;
 
-  const embedUrl = toEmbedUrl(config.liveUrl);
+  const embedUrl = toEmbedUrl(config.liveUrl, { autoplay: 1 });
   if (!embedUrl) return null;
 
   return (

@@ -37,9 +37,10 @@ export default function Oracao() {
       setEnviado(true);
       setForm({ nome: "", categoria: "", pedido: "" });
       setAnonimo(false);
-    } catch {
-      setErro("Não foi possível enviar. Tente novamente.");
-    } finally {
+      } catch (err) {
+        console.error("Erro ao enviar pedido de oração:", err.code, err.message);
+        setErro("Não foi possível enviar. Tente novamente.");
+      } finally {
       setEnviando(false);
     }
   };

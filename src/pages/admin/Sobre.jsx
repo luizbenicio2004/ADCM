@@ -9,6 +9,7 @@ import OptimizedImage from "../../components/OptimizedImage";
 
 const FORM_VAZIO = {
   historia: "", versiculo: "", referenciaVersiculo: "", missao: "", visao: "",
+  versiculoRodape: "",
   numeros: [
     { valor: "10+", label: "Anos de História" },
     { valor: "200+", label: "Famílias" },
@@ -135,6 +136,13 @@ export default function AdminSobre() {
                 <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Referência bíblica</label>
                 <input type="text" name="referenciaVersiculo" value={form.referenciaVersiculo ?? ""} onChange={handleChange}
                   placeholder="Ex: João 3:16"
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Versículo do rodapé</label>
+                <p className="text-xs text-gray-400">Aparece em itálico no rodapé do site. Se vazio, usa o padrão.</p>
+                <input type="text" name="versiculoRodape" value={form.versiculoRodape ?? ""} onChange={handleChange}
+                  placeholder="Ex: O Senhor é o meu pastor… — Salmos 23:1"
                   className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900/30" />
               </div>
             </Cartao>

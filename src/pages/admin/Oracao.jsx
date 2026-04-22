@@ -5,7 +5,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import AdminLayout from "../../components/admin/AdminLayout";
-import { Heart, Eye, EyeOff, Trash2, CheckCircle } from "lucide-react";
+import { Heart, Trash2, CheckCircle, Circle } from "lucide-react";
 
 const CATEGORIAS_COR = {
   "Saúde":          "bg-red-100 text-red-700",
@@ -52,13 +52,22 @@ export default function AdminOracao() {
   });
 
   async function marcarLido(id, lido) {
-    await updateDoc(doc(db, "pedidos_oracao", id), { lido: !lido });
+    try {
+      await updateDoc(doc(db, "pedidos_oracao", id), { lido: !lido });
+    } catch {
+      console.error("Erro ao atualizar pedido de oração");
+    }
   }
 
   async function excluir(id) {
     setExcluindo(id);
-    await deleteDoc(doc(db, "pedidos_oracao", id));
-    setExcluindo(null);
+    try {
+      await deleteDoc(doc(db, "pedidos_oracao", id));
+    } catch {
+      console.error("Erro ao excluir pedido de oração");
+    } finally {
+      setExcluindo(null);
+    }
   }
 
   return (
@@ -138,7 +147,7 @@ export default function AdminOracao() {
                     title={p.lido ? "Marcar como não orado" : "Marcar como orado"}
                     className="p-2 rounded-lg text-gray-400 hover:text-blue-900 hover:bg-blue-50 transition"
                   >
-                    {p.lido ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {p.lido ? <Circle size={16} /> : <CheckCircle size={16} />}
                   </button>
                   <button
                     onClick={() => excluir(p.id)}

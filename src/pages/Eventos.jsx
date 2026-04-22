@@ -33,11 +33,12 @@ export default function EventosPage() {
 
   // 🔥 filtrar + ordenar
   const hoje = new Date().toISOString().split("T")[0];
-  const proximos = data.filter((e) => e.ativo !== false && (e.data ?? "") >= hoje)
-    .sort((a, b) => (a.data ?? "").localeCompare(b.data ?? ""));
-  const passados = data.filter((e) => e.ativo !== false && (e.data ?? "") < hoje)
-    .sort((a, b) => (b.data ?? "").localeCompare(a.data ?? ""));
-  const ativos = [...proximos, ...passados];
+  const proximos = data.filter((e) => e.ativo !== false && e.data && e.data >= hoje)
+    .sort((a, b) => a.data.localeCompare(b.data));
+  const semData = data.filter((e) => e.ativo !== false && !e.data);
+  const passados = data.filter((e) => e.ativo !== false && e.data && e.data < hoje)
+    .sort((a, b) => b.data.localeCompare(a.data));
+  const ativos = [...proximos, ...semData, ...passados];
 
   return (
     <>
