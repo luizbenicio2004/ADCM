@@ -36,10 +36,10 @@ export default function Eventos() {
         </div>
 
         {loading ? (
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
             {Array(4).fill(0).map((_, i) => (
               <div key={i} className="rounded-xl border border-gray-200 overflow-hidden animate-pulse">
-                <div className="h-44 bg-gray-200" />
+                <div className="aspect-[3/4] bg-gray-200" />
                 <div className="p-4 flex flex-col gap-2">
                   <div className="h-4 bg-gray-200 rounded w-2/3" />
                   <div className="h-3 bg-gray-200 rounded w-1/2" />
@@ -54,7 +54,7 @@ export default function Eventos() {
             <p className="text-sm mt-1">Fique de olho — novidades chegam em breve! 🙌</p>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
             {proximos.map((evento, index) => (
               <Link
                 key={evento.id}

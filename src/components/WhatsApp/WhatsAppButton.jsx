@@ -17,7 +17,7 @@ export default function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Fale conosco pelo WhatsApp"
-      className="fixed bottom-7 right-7 z-[900]
+      className="fixed bottom-20 right-7 md:bottom-7 z-[900]
                  w-14 h-14 flex items-center justify-center
                  rounded-full bg-green-500
                  shadow-[0_4px_20px_rgba(37,211,102,0.45)]

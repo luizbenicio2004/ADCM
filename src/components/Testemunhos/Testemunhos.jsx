@@ -49,7 +49,22 @@ export default function Testemunhos() {
     }, 5000);
   }
 
-  // Se todos os testemunhos têm foto, exibe em grid de cards; senão, exibe carrossel
+  const touchStartX = useRef(null);
+
+  function handleTouchStart(e) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e) {
+    if (touchStartX.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(deltaX) < 40) return;
+    if (deltaX < 0) irPara((atual + 1) % lista.length);
+    else irPara((atual - 1 + lista.length) % lista.length);
+  }
+
+
   const temFotos = lista.every((t) => t.fotoUrl);
   const algumTemFoto = lista.some((t) => t.fotoUrl);
 
@@ -128,7 +143,7 @@ export default function Testemunhos() {
           <p className="text-white/70 max-w-[440px] mx-auto">Nada fala mais alto do que a história de quem viveu.</p>
         </div>
 
-        <div className="relative">
+        <div className="relative" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
           {lista.map((t, i) => (
             <div key={t.id} style={{ display: i === atual ? "block" : "none" }}>
               <div className="bg-white/10 border border-white/20 rounded-2xl p-8 md:p-10 text-center">

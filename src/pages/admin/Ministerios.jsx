@@ -4,7 +4,7 @@ import { useCollection } from "../../hooks/useCollection";
 import { useStorage } from "../../hooks/useStorage";
 import { isValidYoutubeUrl } from "../../utils/youtube";
 import Field from "../../components/admin/Field";
-import { Plus, Pencil, Trash2, X, Check, ImagePlus, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, ImagePlus, Loader2, GripVertical } from "lucide-react";
 import OptimizedImage from "../../components/OptimizedImage";
 import { useToast } from "../../hooks/useToast";
 import { ToastContainer } from "../../components/Toast/Toast";
@@ -12,7 +12,7 @@ import ConfirmDialog from "../../components/ConfirmDialog/ConfirmDialog";
 
 const VAZIO = {
   nome: "", descricao: "", responsavel: "", diaSemana: "", horario: "", ativo: true,
-  historia: "", youtubeUrl: "", fotoUrl: "", fotos: [],
+  historia: "", youtubeUrl: "", fotoUrl: "", fotos: [], ordem: "",
 };
 
 const DIAS = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
@@ -80,7 +80,8 @@ export default function AdminMinisterios() {
   const handleEditar = (m) => {
     setForm({ nome: m.nome ?? "", descricao: m.descricao ?? "", responsavel: m.responsavel ?? "",
       diaSemana: m.diaSemana ?? "", horario: m.horario ?? "", ativo: m.ativo ?? true,
-      historia: m.historia ?? "", youtubeUrl: m.youtubeUrl ?? "", fotoUrl: m.fotoUrl ?? "", fotos: m.fotos ?? [] });
+      historia: m.historia ?? "", youtubeUrl: m.youtubeUrl ?? "", fotoUrl: m.fotoUrl ?? "", fotos: m.fotos ?? [],
+      ordem: m.ordem ?? "" });
     setEditandoId(m.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -110,6 +111,7 @@ export default function AdminMinisterios() {
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Nome do ministério *" name="nome" value={form.nome} onChange={handleChange} placeholder="Ex: Ministério de Louvor" />
             <Field label="Responsável" name="responsavel" value={form.responsavel} onChange={handleChange} placeholder="Ex: Pastor João" />
+            <Field label="Ordem de exibição" name="ordem" value={form.ordem} onChange={handleChange} placeholder="Ex: 1, 2, 3… (menor = primeiro)" type="number" />
             <div className="flex flex-col gap-1">
               <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Dia do encontro</label>
               <select name="diaSemana" value={form.diaSemana} onChange={handleChange}
@@ -219,8 +221,13 @@ export default function AdminMinisterios() {
           ) : ministerios?.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-8">Nenhum ministério cadastrado ainda. Adicione o primeiro acima!</p>
           ) : (
-            ministerios?.map((m) => (
-              <div key={m.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-4">
+            ministerios?.sort((a, b) => (a.ordem ?? 999) - (b.ordem ?? 999)).map((m, idx) => (
+              <div key={m.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
+                {/* Indicador de ordem */}
+                <div className="flex flex-col items-center gap-1 flex-shrink-0 pt-1">
+                  <GripVertical size={16} className="text-gray-300" />
+                  <span className="text-[10px] text-gray-300 font-mono">{m.ordem ?? "—"}</span>
+                </div>
                 {m.fotoUrl && <OptimizedImage src={m.fotoUrl} alt={m.nome} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5 flex-wrap">

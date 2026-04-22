@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Megaphone, Bell, AlertCircle, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCollection } from "../../hooks/useCollection";
@@ -47,6 +48,15 @@ const DEFAULT_TIPO = TIPO_CONFIG.aviso;
 export default function Avisos() {
   const { data: todosAvisos = [], loading } = useCollection("avisos");
   const avisos = todosAvisos.filter((a) => a.ativo !== false);
+  const [filtroAtivo, setFiltroAtivo] = useState("todos");
+
+  const FILTROS = [
+    { key: "todos", label: "Todos" },
+    { key: "urgente", label: "🚨 Urgente" },
+    { key: "evento", label: "📅 Evento" },
+    { key: "aviso", label: "📢 Aviso" },
+    { key: "info", label: "ℹ️ Info" },
+  ];
 
   if (loading) {
     return (
@@ -57,7 +67,7 @@ export default function Avisos() {
             <div className="h-8 bg-gray-200 rounded animate-pulse w-36 mx-auto mb-4" />
             <div className="h-4 bg-gray-200 rounded animate-pulse w-64 mx-auto" />
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-3">
             {Array(3).fill(0).map((_, i) => (
               <div key={i} className="rounded-xl border border-gray-200 overflow-hidden animate-pulse">
                 <div className="aspect-[3/4] bg-gray-200" />
@@ -84,8 +94,25 @@ export default function Avisos() {
           <p className="text-gray-600">Fique por dentro do que está movendo a igreja nesta semana.</p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {avisos.map((aviso) => {
+        {/* Pills de filtro */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {FILTROS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFiltroAtivo(f.key)}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
+                filtroAtivo === f.key
+                  ? "bg-blue-900 text-white border-blue-900"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-blue-900/40 hover:text-blue-900"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-3">
+          {avisos.filter((a) => filtroAtivo === "todos" || a.tipo === filtroAtivo).map((aviso) => {
             const cfg = TIPO_CONFIG[aviso.tipo] ?? DEFAULT_TIPO;
             return (
               <div

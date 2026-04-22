@@ -21,7 +21,7 @@ export default function BackToTop() {
       aria-label="Voltar ao topo da página"
       title="Voltar ao topo"
       className={
-        "fixed bottom-24 right-8 z-50 w-12 h-12 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center shadow-lg hover:bg-[#3b82f6] hover:-translate-y-1 transition-all duration-300 " +
+        "fixed bottom-36 right-8 md:bottom-24 z-50 w-12 h-12 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center shadow-lg hover:bg-[#3b82f6] hover:-translate-y-1 transition-all duration-300 " +
         (visivel ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")
       }
     >

@@ -32,7 +32,7 @@ export default function OptimizedImage({
   const effectiveSrc = src || FALLBACK;
   const srcSet = src ? buildSrcSet(src, responsiveSizes) : undefined;
   const effectiveSizes =
-    sizes || (srcSet ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" : undefined);
+    sizes || (srcSet ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw" : undefined);
 
   return (
     <img

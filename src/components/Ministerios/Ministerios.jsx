@@ -37,7 +37,7 @@ export default function Ministerios() {
         {error && <p className="text-center text-gray-400 mb-8">Não conseguimos carregar os ministérios agora. Tente recarregar a página.</p>}
 
         {loading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {Array(4).fill(0).map((_, i) => (
               <div key={i} className="rounded-xl border border-gray-200 overflow-hidden animate-pulse">
                 <div className="aspect-[3/4] bg-gray-200" />
@@ -49,7 +49,7 @@ export default function Ministerios() {
             ))}
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {lista.map((min, index) => {
 
               const cardClass = `group rounded-xl border border-gray-200 overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-500`;

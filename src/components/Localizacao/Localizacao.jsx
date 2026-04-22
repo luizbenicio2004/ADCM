@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
-import { MapPin, Clock } from "lucide-react";
+import { MapPin, Clock, Copy, Check } from "lucide-react";
 import { useConfig } from "../../context/ConfigContext";
 import { useCollection } from "../../hooks/useCollection";
 import { sortCultos } from "../../utils/sortCultos";
 
 export default function Localizacao() {
-  // ✅ CORRIGIDO: o mapa não usa mais IntersectionObserver para controlar
-  // o carregamento do iframe. Em vez disso, espera os dados do Firebase
-  // chegarem (endereco.embedUrl disponível) antes de renderizar o iframe.
-  // Isso elimina o bug onde mapaVisivel=true mas embedUrl ainda era undefined.
   const { config, loading: loadingConfig } = useConfig();
   const { data: cultos = [], loading: loadingCultos } = useCollection("cultos");
 
@@ -16,15 +12,27 @@ export default function Localizacao() {
   const loading = loadingConfig || loadingCultos;
   const cultosOrdenados = sortCultos(cultos);
 
-  // O mapa só renderiza após os dados chegarem
   const [mostrarMapa, setMostrarMapa] = useState(false);
+  const [copiado, setCopiado] = useState(false);
+
   useEffect(() => {
     if (!loadingConfig && endereco.embedUrl) {
-      // Pequeno delay para garantir que o layout já está estável
       const t = setTimeout(() => setMostrarMapa(true), 100);
       return () => clearTimeout(t);
     }
   }, [loadingConfig, endereco.embedUrl]);
+
+  function copiarEndereco() {
+    const partes = [
+      endereco.rua,
+      endereco.bairro && `${endereco.bairro} — ${endereco.cidade}, ${endereco.estado}`,
+      endereco.cep && `CEP: ${endereco.cep}`,
+    ].filter(Boolean).join(", ");
+    navigator.clipboard.writeText(partes).then(() => {
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    });
+  }
 
   return (
     <section id="localizacao" className="py-20 px-6 bg-gray-50">
@@ -46,8 +54,20 @@ export default function Localizacao() {
               <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-900/10 border border-blue-900/20 text-blue-900 flex-shrink-0">
                 <MapPin size={18} />
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">Endereço</h3>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Endereço</h3>
+                  {!loading && endereco.rua && (
+                    <button
+                      onClick={copiarEndereco}
+                      title="Copiar endereço"
+                      className="flex items-center gap-1 text-xs text-blue-900 hover:text-blue-700 border border-blue-900/20 px-2 py-1 rounded transition-all hover:bg-blue-50 flex-shrink-0"
+                    >
+                      {copiado ? <Check size={12} /> : <Copy size={12} />}
+                      {copiado ? "Copiado!" : "Copiar"}
+                    </button>
+                  )}
+                </div>
                 {loading ? (
                   <div className="flex flex-col gap-2">
                     <div className="h-3 bg-gray-200 rounded animate-pulse w-40" />
@@ -112,8 +132,8 @@ export default function Localizacao() {
             )}
           </div>
 
-          {/* COLUNA DIREITA — mapa */}
-          <div className="rounded-xl overflow-hidden border border-gray-200 shadow-md h-[420px] bg-gray-100">
+          {/* COLUNA DIREITA — mapa responsivo */}
+          <div className="rounded-xl overflow-hidden border border-gray-200 shadow-md bg-gray-100" style={{ minHeight: "300px", height: "clamp(300px, 50vw, 420px)" }}>
             {mostrarMapa ? (
               <iframe
                 title="Localização da Igreja ADCM Poá"
@@ -134,3 +154,4 @@ export default function Localizacao() {
     </section>
   );
 }
+

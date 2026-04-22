@@ -10,6 +10,7 @@ export default function Header() {
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [secaoAtiva, setSecaoAtiva] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
@@ -54,6 +55,24 @@ export default function Header() {
   }, [navigate]);
   // ────────────────────────────────────────────────────────────────
 
+  // IntersectionObserver — destaca seção ativa no nav
+  useEffect(() => {
+    if (!isHome) return;
+    const ids = ["sobre", "cultos", "ministerios", "eventos", "reciclagem", "oracao", "localizacao"];
+    const observers = [];
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setSecaoAtiva(id); },
+        { rootMargin: "-40% 0px -40% 0px", threshold: 0 }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach((o) => o.disconnect());
+  }, [isHome]);
+
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 20);
   }, []);
@@ -72,7 +91,6 @@ export default function Header() {
   const navHref = (id) => (isHome ? `#${id}` : `/#${id}`);
 
   // Todos os itens de nav possíveis, em ordem
-  // pagina: rota dedicada quando existe; null = ancora #id na home
   const TODOS_ITENS = [
     { id: "sobre",       label: "Sobre",       secao: "secaoSobre",       pagina: "/sobre" },
     { id: "cultos",      label: "Cultos",      secao: "secaoCultos",      pagina: null },
@@ -82,11 +100,8 @@ export default function Header() {
     { id: "oracao",      label: "Oração",      secao: "secaoOracao",      pagina: null },
   ];
 
-  // Filtra pela config — se config ainda não carregou, mostra todos
   const items = TODOS_ITENS.filter(({ secao }) => !config || config[secao] !== false);
-  const labelMap = Object.fromEntries(items.map(({ id, label }) => [id, label]));
 
-  // Resolve o href de cada item: página dedicada ou ancora na home
   const itemHref = ({ id, pagina }) => pagina ?? navHref(id);
 
   return (
@@ -137,29 +152,26 @@ export default function Header() {
 
           {/* Nav desktop */}
           <nav className="hidden md:flex items-center gap-5" aria-label="Navegação principal">
-            {items.map((item) => (
-              item.pagina ? (
-                <Link
-                  key={item.id}
-                  to={item.pagina}
-                  onClick={handleLinkClick}
-                  className="relative text-sm font-semibold pb-[3px] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-900 after:rounded-full after:transition-all after:duration-300 hover:after:w-full transition-colors duration-300"
-                  style={{ color: solidBg ? "#1f2937" : "rgba(255,255,255,0.9)" }}
-                >
+            {items.map((item) => {
+              const isAtiva = isHome && secaoAtiva === item.id;
+              const baseStyle = {
+                color: isAtiva
+                  ? "#1e3a8a"
+                  : solidBg
+                  ? "#1f2937"
+                  : "rgba(255,255,255,0.9)",
+              };
+              const cls = `relative text-sm font-semibold pb-[3px] after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-blue-900 after:rounded-full after:transition-all after:duration-300 hover:after:w-full transition-colors duration-300 ${isAtiva ? "after:w-full" : "after:w-0"}`;
+              return item.pagina ? (
+                <Link key={item.id} to={item.pagina} onClick={handleLinkClick} className={cls} style={baseStyle}>
                   {item.label}
                 </Link>
               ) : (
-                <a
-                  key={item.id}
-                  href={navHref(item.id)}
-                  onClick={handleLinkClick}
-                  className="relative text-sm font-semibold pb-[3px] after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-900 after:rounded-full after:transition-all after:duration-300 hover:after:w-full transition-colors duration-300"
-                  style={{ color: solidBg ? "#1f2937" : "rgba(255,255,255,0.9)" }}
-                >
+                <a key={item.id} href={navHref(item.id)} onClick={handleLinkClick} className={cls} style={baseStyle}>
                   {item.label}
                 </a>
-              )
-            ))}
+              );
+            })}
             <a
               href={navHref("localizacao")}
               onClick={handleLinkClick}
@@ -168,15 +180,17 @@ export default function Header() {
               Venha nos Visitar
             </a>
 
-            {/* Ícone discreto — só quando deslogado */}
+            {/* Ícone discreto com tooltip — só quando deslogado */}
             {!user && (
               <Link
                 to="/admin/login"
-                className="flex items-center justify-center w-8 h-8 rounded-lg opacity-30 hover:opacity-70 transition-all duration-300"
+                className="relative flex items-center justify-center w-8 h-8 rounded-lg opacity-30 hover:opacity-70 transition-all duration-300 group"
                 style={{ color: solidBg ? "#1e3a8a" : "white" }}
-                title="Admin"
               >
                 <LayoutDashboard size={16} />
+                <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  Admin
+                </span>
               </Link>
             )}
 
@@ -275,7 +289,6 @@ export default function Header() {
             Venha nos Visitar
           </a>
 
-          {/* Botão admin discreto no mobile — só quando deslogado */}
           {!user && (
             <Link
               to="/admin/login"
